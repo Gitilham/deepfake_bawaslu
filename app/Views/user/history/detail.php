@@ -1,465 +1,236 @@
 <?= $this->extend('layouts/user') ?>
 
 <?= $this->section('styles') ?>
-
-<style>
-    :root {
-        --detail-red: #b31312;
-        --detail-red-soft: rgba(179, 19, 18, .09);
-        --detail-dark: #111827;
-        --detail-muted: #6b7280;
-        --detail-border: #e5e7eb;
-        --detail-soft: #f8fafc;
-    }
-
-    .detail-page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        gap: 16px;
-        margin-bottom: 22px;
-    }
-
-    .detail-page-header h3 {
-        font-weight: 900;
-        color: var(--detail-dark);
-        margin-bottom: 6px;
-    }
-
-    .detail-page-header p {
-        color: var(--detail-muted);
-        margin-bottom: 0;
-    }
-
-    .result-card {
-        border: 0;
-        border-radius: 28px;
-        background: #fff;
-        box-shadow: 0 20px 55px rgba(15, 23, 42, .08);
-        overflow: hidden;
-        margin-bottom: 22px;
-        position: relative;
-    }
-
-    .result-card::before {
-        content: "";
-        position: absolute;
-        inset: 0 0 auto 0;
-        height: 8px;
-        background: linear-gradient(90deg, var(--detail-red), #e63946, #111827);
-    }
-
-    .result-card-body {
-        padding: 34px;
-        display: grid;
-        grid-template-columns: .9fr 1.1fr;
-        gap: 28px;
-        align-items: center;
-    }
-
-    .result-left {
-        text-align: center;
-        border-right: 1px solid var(--detail-border);
-        padding-right: 28px;
-    }
-
-    .result-icon {
-        width: 92px;
-        height: 92px;
-        margin: 0 auto 18px;
-        border-radius: 28px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 45px;
-    }
-
-    .result-icon.real {
-        background: #ecfdf5;
-        color: #059669;
-    }
-
-    .result-icon.fake {
-        background: #fef2f2;
-        color: var(--detail-red);
-    }
-
-    .result-icon.unknown {
-        background: #f1f5f9;
-        color: #64748b;
-    }
-
-    .result-left h4 {
-        font-weight: 900;
-        color: var(--detail-dark);
-        margin-bottom: 7px;
-        word-break: break-word;
-    }
-
-    .result-left p {
-        color: var(--detail-muted);
-        margin-bottom: 14px;
-    }
-
-    .result-badge {
-        border-radius: 999px;
-        padding: 8px 14px;
-        font-weight: 900;
-        font-size: 13px;
-    }
-
-    .result-right h4 {
-        font-weight: 900;
-        color: var(--detail-dark);
-        margin-bottom: 10px;
-    }
-
-    .result-right p {
-        color: var(--detail-muted);
-        line-height: 1.8;
-        margin-bottom: 22px;
-    }
-
-    .score-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 13px;
-    }
-
-    .score-box {
-        border: 1px solid var(--detail-border);
-        border-radius: 18px;
-        padding: 15px;
-        background: #fff;
-    }
-
-    .score-box span {
-        display: block;
-        color: var(--detail-muted);
-        font-size: 12.5px;
-        margin-bottom: 6px;
-    }
-
-    .score-box strong {
-        color: var(--detail-dark);
-        font-size: 20px;
-        font-weight: 900;
-    }
-
-    .info-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 22px;
-    }
-
-    .info-card {
-        border: 0;
-        border-radius: 24px;
-        background: #fff;
-        box-shadow: 0 18px 45px rgba(15, 23, 42, .07);
-        overflow: hidden;
-    }
-
-    .info-card-header {
-        padding: 18px 22px;
-        border-bottom: 1px solid var(--detail-border);
-        background: #fff;
-        font-weight: 900;
-        color: var(--detail-dark);
-        display: flex;
-        align-items: center;
-        gap: 9px;
-    }
-
-    .info-card-header i {
-        color: var(--detail-red);
-    }
-
-    .info-list {
-        padding: 8px 22px 18px;
-    }
-
-    .info-item {
-        display: flex;
-        justify-content: space-between;
-        gap: 16px;
-        padding: 13px 0;
-        border-bottom: 1px solid #eef2f7;
-    }
-
-    .info-item:last-child {
-        border-bottom: 0;
-    }
-
-    .info-item span {
-        color: var(--detail-muted);
-    }
-
-    .info-item strong {
-        color: var(--detail-dark);
-        text-align: right;
-        word-break: break-word;
-    }
-
-    .error-box {
-        margin-top: 18px;
-        border-radius: 18px;
-        background: #fef2f2;
-        border: 1px solid #fecaca;
-        color: #991b1b;
-        padding: 16px;
-        line-height: 1.7;
-    }
-
-    @media (max-width: 1199.98px) {
-        .score-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-
-    @media (max-width: 991.98px) {
-        .result-card-body {
-            grid-template-columns: 1fr;
-        }
-
-        .result-left {
-            border-right: 0;
-            border-bottom: 1px solid var(--detail-border);
-            padding-right: 0;
-            padding-bottom: 24px;
-        }
-
-        .info-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    @media (max-width: 575.98px) {
-        .detail-page-header {
-            flex-direction: column;
-        }
-
-        .result-card-body {
-            padding: 24px 18px;
-        }
-
-        .score-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .info-item {
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .info-item strong {
-            text-align: left;
-        }
-    }
-</style>
-
+<?php
+$detailCss = FCPATH . 'assets/css/detection-detail.css';
+$detailAssetVersion = is_file($detailCss) ? (string) filemtime($detailCss) : '1';
+$detailJs = FCPATH . 'assets/js/detection-result.js';
+$detailJsVersion = is_file($detailJs) ? (string) filemtime($detailJs) : '1';
+?>
+<link rel="stylesheet" href="<?= base_url('assets/css/detection-detail.css?v=' . $detailAssetVersion) ?>">
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
-
 <?php
-$status = $detection['status'] ?? 'pending';
-$label = $detection['predicted_label'] ?? 'UNKNOWN';
-
-$statusClass = match ($status) {
-    'pending' => 'warning',
-    'processing' => 'info',
-    'completed' => 'success',
-    'failed' => 'danger',
-    'reviewed' => 'primary',
-    default => 'secondary',
-};
-
-$labelClass = match ($label) {
-    'REAL' => 'success',
-    'MENCURIGAKAN' => 'warning',
-    'DEEPFAKE' => 'danger',
-    'NO_FACE' => 'info',
-    default => 'secondary',
-};
-
-$iconClass = match ($label) {
+$status = strtolower((string) ($detection['status'] ?? 'pending'));
+$label = strtoupper((string) ($detection['predicted_label'] ?? 'UNKNOWN'));
+$isFailed = $status === 'failed';
+$isProcessing = in_array($status, ['pending', 'processing'], true);
+$resultType = $isFailed ? 'failed' : ($isProcessing ? 'processing' : match ($label) {
     'REAL' => 'real',
-    'DEEPFAKE' => 'fake',
-    default => 'unknown',
+    'DEEPFAKE' => 'deepfake',
+    default => 'uncertain',
+});
+
+$resultContent = match ($resultType) {
+    'real' => [
+        'title' => 'Video Cenderung Asli',
+        'description' => 'Analisis sistem menunjukkan bahwa video ini lebih cenderung merupakan video asli.',
+        'meaning' => 'Video lebih cenderung asli berdasarkan pola visual yang dianalisis oleh sistem. Namun, hasil otomatis tetap perlu dipertimbangkan bersama sumber dan konteks video.',
+        'badge' => 'Cenderung Asli',
+        'icon' => 'bi-check-circle-fill',
+    ],
+    'deepfake' => [
+        'title' => 'Video Terdeteksi Deepfake',
+        'description' => 'Analisis sistem menemukan indikasi manipulasi deepfake pada video ini.',
+        'meaning' => 'Video menunjukkan pola yang menyerupai hasil manipulasi deepfake. Hindari langsung mempercayai atau menyebarkan video sebelum melakukan verifikasi tambahan.',
+        'badge' => 'Terdeteksi Deepfake',
+        'icon' => 'bi-exclamation-triangle-fill',
+    ],
+    'uncertain' => [
+        'title' => 'Hasil Belum Meyakinkan',
+        'description' => 'Skor asli dan deepfake cukup berdekatan sehingga hasil perlu diperiksa lebih lanjut.',
+        'meaning' => 'Sistem belum cukup yakin untuk menentukan apakah video asli atau deepfake. Lakukan pemeriksaan manual atau gunakan sumber pembanding.',
+        'badge' => 'Perlu Pemeriksaan',
+        'icon' => 'bi-question-circle-fill',
+    ],
+    'failed' => [
+        'title' => 'Video Gagal Dianalisis',
+        'description' => 'Terjadi kendala saat menganalisis video. Silakan coba kembali menggunakan video lain.',
+        'meaning' => 'Belum ada kesimpulan yang dapat diberikan untuk video ini karena proses analisis tidak selesai.',
+        'badge' => 'Gagal Dianalisis',
+        'icon' => 'bi-x-octagon-fill',
+    ],
+    default => [
+        'title' => 'Video Sedang Diproses',
+        'description' => 'Sistem sedang memproses video dan hasil belum tersedia.',
+        'meaning' => 'Tunggu hingga proses selesai sebelum menggunakan hasil analisis.',
+        'badge' => 'Sedang Diproses',
+        'icon' => 'bi-hourglass-split',
+    ],
 };
 
-$iconName = match ($label) {
-    'REAL' => 'bi-check-circle-fill',
-    'DEEPFAKE' => 'bi-exclamation-triangle-fill',
-    default => 'bi-question-circle-fill',
-};
-
-$description = match ($label) {
-    'REAL' => 'Sistem mengklasifikasikan video ini sebagai video asli berdasarkan hasil prediksi model.',
-    'DEEPFAKE' => 'Sistem mengklasifikasikan video ini sebagai video yang terindikasi manipulasi deepfake.',
-    default => 'Video belum memiliki hasil klasifikasi yang valid.',
+$statusText = match ($status) {
+    'completed', 'reviewed' => 'Selesai Diproses',
+    'processing' => 'Sedang Diproses',
+    'failed' => 'Gagal Dianalisis',
+    default => 'Menunggu Diproses',
 };
 
 $formatBytes = static function ($bytes): string {
-    if ($bytes === null || $bytes === '') {
-        return '-';
-    }
-
+    if ($bytes === null || $bytes === '') return '-';
     $bytes = (float) $bytes;
     $units = ['B', 'KB', 'MB', 'GB'];
-
-    for ($i = 0; $bytes >= 1024 && $i < count($units) - 1; $i++) {
-        $bytes /= 1024;
-    }
-
-    return round($bytes, 2) . ' ' . $units[$i];
+    for ($i = 0; $bytes >= 1024 && $i < count($units) - 1; $i++) $bytes /= 1024;
+    return number_format($bytes, $bytes >= 10 ? 1 : 2, ',', '.') . ' ' . $units[$i];
 };
 
-$formatPercent = static function ($value): string {
-    if ($value === null || $value === '') {
-        return '-';
-    }
-
-    return number_format((float) $value * 100, 2) . '%';
+$percentValue = static function ($value): ?float {
+    if ($value === null || $value === '' || ! is_numeric($value)) return null;
+    return max(0, min(100, (float) $value * 100));
 };
+
+$formatPercent = static function ($value) use ($percentValue): string {
+    $percent = $percentValue($value);
+    return $percent === null ? '-' : number_format($percent, 2, ',', '.') . '%';
+};
+
+$formatDate = static function ($value): string {
+    if (empty($value)) return '-';
+    try {
+        $date = new DateTime((string) $value);
+        $months = [1 => 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+        return $date->format('j') . ' ' . $months[(int) $date->format('n')] . ' ' . $date->format('Y, H.i');
+    } catch (Throwable $exception) {
+        return (string) $value;
+    }
+};
+
+$realPercent = $percentValue($detection['real_score'] ?? null);
+$fakePercent = $percentValue($detection['fake_score'] ?? null);
+$showResultAlert = (bool) session()->getFlashdata('show_result_alert');
+$alertConfig = [
+    'show' => $showResultAlert,
+    'type' => $resultType,
+    'otherUrl' => base_url('user/detections/create'),
+];
 ?>
 
 <div class="detail-page-header">
     <div>
+        <span class="page-eyebrow">HASIL ANALISIS VIDEO</span>
         <h3 class="page-title">Detail Hasil Deteksi</h3>
-        <p>Ringkasan hasil analisis video Anda.</p>
+        <p>Ringkasan utama ditampilkan lebih dulu, sementara data teknis dapat dibuka bila diperlukan.</p>
     </div>
-
-    <!-- <a href="<?= base_url('user/history') ?>" class="btn btn-outline-secondary">
-        <i class="bi bi-arrow-left me-1"></i>
-        Kembali
-    </a> -->
+    <div class="detail-actions">
+        <a href="<?= base_url('user/detections/create') ?>" class="btn btn-danger">
+            <i class="bi bi-plus-circle me-1"></i> Deteksi Video Lain
+        </a>
+        <a href="<?= base_url('user/history') ?>" class="btn btn-outline-secondary">
+            <i class="bi bi-clock-history me-1"></i> Kembali ke Riwayat
+        </a>
+    </div>
 </div>
 
-<div class="result-card">
-    <div class="result-card-body">
-        <div class="result-left">
-            <div class="result-icon <?= esc($iconClass) ?>">
-                <i class="bi <?= esc($iconName) ?>"></i>
-            </div>
-
-            <h4><?= esc($detection['original_filename'] ?? '-') ?></h4>
-            <p>ID Deteksi: <?= esc($detection['id'] ?? '-') ?></p>
-
-            <div class="d-flex justify-content-center gap-2 flex-wrap">
-                <span class="badge result-badge text-bg-<?= esc($labelClass) ?>">
-                    <?= esc($label) ?>
-                </span>
-
-                <span class="badge result-badge text-bg-<?= esc($statusClass) ?>">
-                    <?= esc($status) ?>
-                </span>
-            </div>
+<section class="result-hero result-<?= esc($resultType, 'attr') ?>" aria-labelledby="resultTitle">
+    <div class="result-summary">
+        <div class="result-icon"><i class="bi <?= esc($resultContent['icon'], 'attr') ?>"></i></div>
+        <div>
+            <span class="result-badge"><?= esc($resultContent['badge']) ?></span>
+            <h4 id="resultTitle"><?= esc($resultContent['title']) ?></h4>
+            <p><?= esc($resultContent['description']) ?></p>
         </div>
+    </div>
+    <div class="result-file">
+        <span>Video yang diperiksa</span>
+        <strong title="<?= esc($detection['original_filename'] ?? '-', 'attr') ?>"><?= esc($detection['original_filename'] ?? '-') ?></strong>
+    </div>
+</section>
 
-        <div class="result-right">
-            <h4>Kesimpulan Sistem</h4>
-            <p><?= esc($description) ?></p>
-
-            <div class="score-grid">
-                <div class="score-box">
-                    <span>Confidence</span>
+<div class="detail-layout">
+    <div class="detail-main">
+        <section class="detail-card" aria-labelledby="scoreTitle">
+            <div class="detail-card-heading">
+                <div>
+                    <span class="section-kicker">PERBANDINGAN SKOR</span>
+                    <h5 id="scoreTitle">Bagaimana sistem menilai video ini?</h5>
+                </div>
+                <div class="confidence-pill">
+                    <span>Tingkat Keyakinan Sistem</span>
                     <strong><?= esc($formatPercent($detection['confidence'] ?? null)) ?></strong>
                 </div>
+            </div>
+            <p class="confidence-help"><i class="bi bi-info-circle"></i> Menunjukkan seberapa kuat sistem condong terhadap hasil yang dipilih.</p>
 
-                <div class="score-box">
-                    <span>Real Score</span>
-                    <strong class="text-success"><?= esc($formatPercent($detection['real_score'] ?? null)) ?></strong>
+            <div class="score-row">
+                <div class="score-label"><span>Skor Video Asli</span><strong class="text-success"><?= esc($formatPercent($detection['real_score'] ?? null)) ?></strong></div>
+                <div class="score-track" role="progressbar" aria-label="Skor Video Asli" aria-valuemin="0" aria-valuemax="100" aria-valuenow="<?= esc($realPercent ?? 0, 'attr') ?>">
+                    <span class="score-real" style="width: <?= esc($realPercent ?? 0, 'attr') ?>%"></span>
                 </div>
-
-                <div class="score-box">
-                    <span>Fake Score</span>
-                    <strong class="text-danger"><?= esc($formatPercent($detection['fake_score'] ?? null)) ?></strong>
-                </div>
-
-                <div class="score-box">
-                    <span>Durasi Proses</span>
-                    <strong>
-                        <?= ($detection['duration_seconds'] ?? null) !== null && ($detection['duration_seconds'] ?? '') !== ''
-                            ? esc($detection['duration_seconds']) . ' detik'
-                            : '-' ?>
-                    </strong>
+            </div>
+            <div class="score-row">
+                <div class="score-label"><span>Skor Deepfake</span><strong class="text-danger"><?= esc($formatPercent($detection['fake_score'] ?? null)) ?></strong></div>
+                <div class="score-track" role="progressbar" aria-label="Skor Deepfake" aria-valuemin="0" aria-valuemax="100" aria-valuenow="<?= esc($fakePercent ?? 0, 'attr') ?>">
+                    <span class="score-fake" style="width: <?= esc($fakePercent ?? 0, 'attr') ?>%"></span>
                 </div>
             </div>
 
-            <?php if (! empty($detection['error_message'])) : ?>
-                <div class="error-box">
-                    <strong>Proses gagal:</strong><br>
-                    <?= esc($detection['error_message']) ?>
-                </div>
+            <?php if ($resultType === 'uncertain') : ?>
+                <div class="uncertain-note"><i class="bi bi-exclamation-circle"></i> Nilai kedua kategori cukup berdekatan sehingga hasil belum meyakinkan.</div>
             <?php endif; ?>
-        </div>
+
+            <div class="summary-metrics">
+                <div><span>Kecenderungan Sistem</span><strong><?= esc($resultContent['badge']) ?></strong></div>
+                <div><span>Durasi Analisis</span><strong><?= isset($detection['duration_seconds']) && $detection['duration_seconds'] !== null ? esc($detection['duration_seconds']) . ' detik' : '-' ?></strong></div>
+            </div>
+        </section>
+
+        <section class="detail-card meaning-card" aria-labelledby="meaningTitle">
+            <div class="meaning-icon"><i class="bi bi-lightbulb"></i></div>
+            <div><h5 id="meaningTitle">Apa arti hasil ini?</h5><p><?= esc($resultContent['meaning']) ?></p></div>
+        </section>
+
+        <?php if ($isFailed && ! empty($detection['error_message'])) : ?>
+            <div class="error-box"><i class="bi bi-exclamation-octagon"></i><div><strong>Kendala saat analisis</strong><p><?= esc($detection['error_message']) ?></p></div></div>
+        <?php endif; ?>
     </div>
+
+    <aside class="detail-side">
+        <section class="detail-card" aria-labelledby="videoInfoTitle">
+            <div class="side-card-title"><i class="bi bi-file-earmark-play"></i><h5 id="videoInfoTitle">Informasi Video</h5></div>
+            <dl class="info-list">
+                <div><dt>ID deteksi</dt><dd><?= esc($detection['id'] ?? '-') ?></dd></div>
+                <div><dt>Nama file</dt><dd><?= esc($detection['original_filename'] ?? '-') ?></dd></div>
+                <div><dt>Ukuran</dt><dd><?= esc($formatBytes($detection['file_size'] ?? null)) ?></dd></div>
+                <div><dt>Format</dt><dd><?= esc($detection['file_mime'] ?? '-') ?></dd></div>
+                <div><dt>Tanggal upload</dt><dd><?= esc($formatDate($detection['created_at'] ?? null)) ?></dd></div>
+                <div><dt>Waktu selesai</dt><dd><?= esc($formatDate($detection['updated_at'] ?? null)) ?></dd></div>
+                <div><dt>Status proses</dt><dd><span class="process-badge process-<?= esc($status, 'attr') ?>"><?= esc($statusText) ?></span></dd></div>
+            </dl>
+        </section>
+    </aside>
 </div>
 
-<div class="info-grid">
-    <div class="info-card">
-        <div class="info-card-header">
-            <i class="bi bi-file-earmark-play"></i>
-            Informasi Video
-        </div>
-
-        <div class="info-list">
-            <div class="info-item">
-                <span>Nama File</span>
-                <strong><?= esc($detection['original_filename'] ?? '-') ?></strong>
-            </div>
-
-            <div class="info-item">
-                <span>Ukuran</span>
-                <strong><?= esc($formatBytes($detection['file_size'] ?? null)) ?></strong>
-            </div>
-
-            <div class="info-item">
-                <span>MIME</span>
-                <strong><?= esc($detection['file_mime'] ?? '-') ?></strong>
-            </div>
-
-            <div class="info-item">
-                <span>Tanggal Upload</span>
-                <strong><?= esc($detection['created_at'] ?? '-') ?></strong>
+<section class="technical-card">
+    <div class="accordion" id="technicalAccordion">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="technicalHeading">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#technicalDetail" aria-expanded="false" aria-controls="technicalDetail">
+                    <i class="bi bi-code-square me-2"></i> Lihat Detail Teknis
+                </button>
+            </h2>
+            <div id="technicalDetail" class="accordion-collapse collapse" aria-labelledby="technicalHeading" data-bs-parent="#technicalAccordion">
+                <div class="accordion-body technical-grid">
+                    <div><span>ID deteksi</span><strong><?= esc($detection['id'] ?? '-') ?></strong></div>
+                    <div><span>MIME</span><strong><?= esc($detection['file_mime'] ?? '-') ?></strong></div>
+                    <div><span>Status internal</span><strong><?= esc($status) ?></strong></div>
+                    <div><span>Label internal</span><strong><?= esc($label) ?></strong></div>
+                    <div><span>Nama model</span><strong><?= esc($detection['model_version'] ?? '-') ?></strong></div>
+                    <div><span>Threshold</span><strong><?= esc($detection['threshold'] ?? '-') ?></strong></div>
+                    <div><span>Frame dianalisis</span><strong><?= esc($detection['frames_used'] ?? '-') ?></strong></div>
+                    <div><span>Wajah terdeteksi</span><strong><?= esc($detection['face_detected_count'] ?? '-') ?></strong></div>
+                    <div><span>ID permintaan API</span><strong><?= esc($detection['request_id'] ?? '-') ?></strong></div>
+                    <div><span>Catatan sistem</span><strong><?= esc($detection['confidence_note'] ?? '-') ?></strong></div>
+                </div>
             </div>
         </div>
     </div>
+</section>
 
-    <div class="info-card">
-        <div class="info-card-header">
-            <i class="bi bi-shield-check"></i>
-            Informasi Deteksi
-        </div>
+<div id="resultAlertConfig" data-config="<?= esc(json_encode($alertConfig, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), 'attr') ?>" hidden></div>
+<?= $this->endSection() ?>
 
-        <div class="info-list">
-            <div class="info-item">
-                <span>Status</span>
-                <strong>
-                    <span class="badge text-bg-<?= esc($statusClass) ?>">
-                        <?= esc($status) ?>
-                    </span>
-                </strong>
-            </div>
-
-            <div class="info-item">
-                <span>Hasil Akhir</span>
-                <strong><?= esc($label) ?></strong>
-            </div>
-
-            <div class="info-item">
-                <span>Update Terakhir</span>
-                <strong><?= esc($detection['updated_at'] ?? '-') ?></strong>
-            </div>
-
-            <div class="info-item">
-                <span>Catatan</span>
-                <strong>Hasil berasal dari model Flask API.</strong>
-            </div>
-        </div>
-    </div>
-</div>
-
+<?= $this->section('scripts') ?>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
+<script src="<?= base_url('assets/js/detection-result.js?v=' . $detailJsVersion) ?>" defer></script>
 <?= $this->endSection() ?>

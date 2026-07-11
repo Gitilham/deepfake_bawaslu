@@ -1,64 +1,43 @@
 <?php
-$current = uri_string();
-
-$active = static function (string $path) use ($current): string {
-    $path = trim($path, '/');
-
-    if ($current === $path) {
-        return 'active';
-    }
-
-    if (str_starts_with($current, $path . '/')) {
-        return 'active';
-    }
-
-    return '';
-};
+$currentPath = uri_string();
+$isDashboard = $currentPath === 'user' || $currentPath === 'user/dashboard';
+$isDetection = str_starts_with($currentPath, 'user/detections');
+$isHistory = str_starts_with($currentPath, 'user/history');
+$isEducation = str_starts_with($currentPath, 'user/education');
+$isProfile = str_starts_with($currentPath, 'user/profile');
+$menuItems = [
+    ['url' => 'user/dashboard', 'label' => 'Dashboard', 'icon' => 'bi-speedometer2', 'active' => $isDashboard],
+    ['url' => 'user/detections/create', 'label' => 'Deteksi Video', 'icon' => 'bi-cloud-arrow-up', 'active' => $isDetection],
+    ['url' => 'user/history', 'label' => 'Riwayat Deteksi', 'icon' => 'bi-clock-history', 'active' => $isHistory],
+    ['url' => 'user/education', 'label' => 'Edukasi Deepfake', 'icon' => 'bi-shield-check', 'active' => $isEducation],
+    ['url' => 'user/profile', 'label' => 'Profil', 'icon' => 'bi-person-circle', 'active' => $isProfile],
+];
 ?>
-
-<aside class="user-sidebar" id="userSidebar">
+<aside class="user-sidebar" id="userSidebar" aria-label="Navigasi pengguna" aria-hidden="false">
     <div class="sidebar-brand">
-        <i class="bi bi-shield-check"></i>
-        <div>
-            <div>BAWASLU</div>
-            <small class="fw-normal text-muted">Deepfake Detection</small>
-        </div>
+        <a href="<?= base_url('user/dashboard') ?>" class="brand-inner" aria-label="BAWASLU Deepfake Detection">
+            <span class="brand-logo"><i class="bi bi-shield-check"></i></span>
+            <span class="brand-copy"><strong>BAWASLU</strong><small>Deepfake Detection</small></span>
+        </a>
+        <button type="button" class="sidebar-close" id="sidebarClose" aria-label="Tutup menu navigasi">
+            <i class="bi bi-x-lg"></i>
+        </button>
     </div>
 
-    <div class="py-3">
-        <a href="<?= base_url('user/dashboard') ?>" class="nav-link <?= $active('user/dashboard') ?>">
-            <i class="bi bi-speedometer2"></i>
-            <span>Dashboard</span>
-        </a>
+    <nav class="sidebar-menu">
+        <?php foreach ($menuItems as $item) : ?>
+            <a href="<?= base_url($item['url']) ?>"
+               class="sidebar-link <?= $item['active'] ? 'active' : '' ?>"
+               title="<?= esc($item['label'], 'attr') ?>"
+               <?= $item['active'] ? 'aria-current="page"' : '' ?>>
+                <i class="bi <?= esc($item['icon'], 'attr') ?>"></i>
+                <span><?= esc($item['label']) ?></span>
+            </a>
+        <?php endforeach; ?>
+    </nav>
 
-        <a href="<?= base_url('user/detections/create') ?>" class="nav-link <?= $active('user/detections') ?>">
-            <i class="bi bi-upload"></i>
-            <span>Deteksi Video</span>
-        </a>
-
-        <a href="<?= base_url('user/history') ?>" class="nav-link <?= $active('user/history') ?>">
-            <i class="bi bi-clock-history"></i>
-            <span>Riwayat Deteksi</span>
-        </a>
-
-        <a href="<?= base_url('user/education') ?>" class="nav-link <?= $active('user/education') ?>">
-            <i class="bi bi-journal-text"></i>
-            <span>Edukasi Deepfake</span>
-        </a>
-
-        <a href="<?= base_url('user/profile') ?>" class="nav-link <?= $active('user/profile') ?>">
-            <i class="bi bi-person-circle"></i>
-            <span>Profil</span>
-        </a>
-
-        <hr class="mx-3">
-
-        <form method="post" action="<?= base_url('logout') ?>">
-            <?= csrf_field() ?>
-        <button type="submit" class="nav-link text-danger border-0 bg-transparent w-100 text-start">
-            <i class="bi bi-box-arrow-right"></i>
-            <span>Logout</span>
-        </button>
-        </form>
+    <div class="sidebar-footer">
+        <span class="sidebar-footer-icon"><i class="bi bi-info-circle"></i></span>
+        <span>Gunakan hasil sistem sebagai bantuan verifikasi awal.</span>
     </div>
 </aside>

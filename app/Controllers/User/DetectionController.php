@@ -136,7 +136,9 @@ class DetectionController extends BaseController
                     'error_message' => $service->extractErrorMessage($result),
                     'api_response_json' => json_encode($service->buildCompactLog($result), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
                 ]);
-                return redirect()->to($redirect)->with('error', $service->extractErrorMessage($result));
+                return redirect()->to($redirect)
+                    ->with('error', $service->extractErrorMessage($result))
+                    ->with('show_result_alert', true);
             }
 
             $compact = [
@@ -197,7 +199,9 @@ class DetectionController extends BaseController
                 'result' => $result['result_status'],
             ]);
 
-            return redirect()->to($redirect)->with('success', 'Video berhasil diproses.');
+            return redirect()->to($redirect)
+                ->with('success', 'Video berhasil diproses.')
+                ->with('show_result_alert', true);
         } catch (Throwable $exception) {
             if ($detectionId !== null) {
                 $this->detectionModel->update($detectionId, [
@@ -210,7 +214,11 @@ class DetectionController extends BaseController
                 'detection_id' => $detectionId ?? '-',
                 'message' => $exception->getMessage(),
             ]);
-            return redirect()->to($redirect)->with('error', 'Terjadi kesalahan saat memproses video.');
+            $response = redirect()->to($redirect)->with('error', 'Terjadi kesalahan saat memproses video.');
+            if ($detectionId !== null) {
+                $response->with('show_result_alert', true);
+            }
+            return $response;
         } finally {
             if ($tempPath !== null && is_file($tempPath)) {
                 @unlink($tempPath);

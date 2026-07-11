@@ -20,11 +20,7 @@ $acceptTypes = implode(',', array_map(static fn (string $type): string => '.' . 
 <div class="upload-header">
     <div>
         <h3>Deteksi Video Deepfake</h3>
-        <p>
-            Upload video untuk dianalisis oleh model AI. Setelah video dipilih, area upload
-            akan berubah menjadi preview video sehingga Anda bisa memastikan video yang
-            dipilih sudah benar sebelum memulai proses deteksi.
-        </p>
+        <p>Unggah video yang ingin diperiksa. Sistem akan menganalisis video untuk mencari indikasi manipulasi deepfake.</p>
     </div>
 
     <!-- <a href="<?= base_url('user/history') ?>" class="btn btn-outline-secondary">
@@ -42,8 +38,8 @@ $acceptTypes = implode(',', array_map(static fn (string $type): string => '.' . 
                     <i class="bi bi-cloud-arrow-up"></i>
                 </div>
                 <div>
-                    <h5>Upload Video</h5>
-                    <small>Pilih satu video untuk diperiksa oleh sistem.</small>
+                    <h5>Unggah Video</h5>
+                    <small>Video akan dianalisis secara otomatis setelah dikirim.</small>
                 </div>
             </div>
 
@@ -53,7 +49,7 @@ $acceptTypes = implode(',', array_map(static fn (string $type): string => '.' . 
             </div>
         </div>
 
-        <form action="<?= base_url('user/detections/store') ?>" method="post" enctype="multipart/form-data" id="uploadForm"
+        <form action="<?= base_url('user/detections/store') ?>" method="post" enctype="multipart/form-data" id="uploadForm" novalidate
               data-max-size-mb="<?= esc($maxSizeMb, 'attr') ?>"
               data-max-duration-seconds="<?= esc((int) ($maxVideoDuration ?? 0), 'attr') ?>"
               data-allowed-extensions="<?= esc(json_encode($allowedExtensions), 'attr') ?>">
@@ -80,10 +76,13 @@ $acceptTypes = implode(',', array_map(static fn (string $type): string => '.' . 
                                 <i class="bi bi-file-earmark-play"></i>
                             </div>
 
-                            <h4>Pilih atau tarik video ke sini</h4>
-                            <p>
-                                Gunakan video pendek untuk proses awal agar prediksi berjalan lebih cepat.
-                            </p>
+                            <h4>Tarik dan letakkan video di sini</h4>
+                            <p>atau klik untuk memilih video dari perangkat Anda</p>
+
+                            <span class="upload-choose-button">
+                                <i class="bi bi-folder2-open"></i>
+                                Pilih Video
+                            </span>
 
                             <div class="upload-badges">
                                 <span class="upload-badge">
@@ -128,7 +127,11 @@ $acceptTypes = implode(',', array_map(static fn (string $type): string => '.' . 
                                 </div>
                                 <div class="min-w-0">
                                     <div class="preview-file-name" id="selectedFileName">-</div>
-                                    <div class="preview-file-size" id="selectedFileSize">-</div>
+                                    <div class="preview-file-meta">
+                                        <span id="selectedFileSize">-</span>
+                                        <span aria-hidden="true">&bull;</span>
+                                        <span id="selectedFileType">-</span>
+                                    </div>
                                 </div>
                             </div>
 
@@ -147,15 +150,15 @@ $acceptTypes = implode(',', array_map(static fn (string $type): string => '.' . 
                 </div>
 
                 <div class="upload-side">
-                    <h6>Yang dilakukan sistem</h6>
+                    <h6>Informasi unggahan</h6>
 
                     <div class="mini-step">
                         <div class="mini-step-icon">
                             <i class="bi bi-film"></i>
                         </div>
                         <div>
-                            <strong>Ekstraksi Frame</strong>
-                            <span>Sistem mengambil sejumlah frame dari video yang diupload.</span>
+                            <strong>Format yang didukung</strong>
+                            <span><?= esc(strtoupper(implode(', ', $allowedExtensions))) ?></span>
                         </div>
                     </div>
 
@@ -164,8 +167,8 @@ $acceptTypes = implode(',', array_map(static fn (string $type): string => '.' . 
                             <i class="bi bi-person-bounding-box"></i>
                         </div>
                         <div>
-                            <strong>Deteksi Wajah</strong>
-                            <span>Area wajah dipotong menggunakan model YOLOv8 sebelum dianalisis.</span>
+                            <strong>Ukuran maksimal</strong>
+                            <span><?= esc($maxSizeMb) ?> MB sesuai konfigurasi aplikasi.</span>
                         </div>
                     </div>
 
@@ -174,8 +177,8 @@ $acceptTypes = implode(',', array_map(static fn (string $type): string => '.' . 
                             <i class="bi bi-cpu"></i>
                         </div>
                         <div>
-                            <strong>Analisis Deepfake</strong>
-                            <span>Model AI menganalisis artefak visual untuk menentukan REAL atau DEEPFAKE.</span>
+                            <strong>Analisis otomatis</strong>
+                            <span>Sistem memeriksa frame, wajah, dan pola visual video.</span>
                         </div>
                     </div>
 
@@ -184,12 +187,14 @@ $acceptTypes = implode(',', array_map(static fn (string $type): string => '.' . 
                             <i class="bi bi-shield-check"></i>
                         </div>
                         <div>
-                            <strong>Hasil Prediksi</strong>
-                            <span>Sistem menampilkan confidence score beserta hasil klasifikasinya.</span>
+                            <strong>Privasi proses</strong>
+                            <span>Hanya satu file dikirim saat Anda menekan Mulai Deteksi.</span>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <div class="upload-validation" id="uploadValidation" role="alert" aria-live="polite" hidden></div>
 
             <div class="upload-footer">
                 <div class="upload-note">
@@ -220,14 +225,20 @@ $acceptTypes = implode(',', array_map(static fn (string $type): string => '.' . 
                     autoplay>
                 </lottie-player>
 
-                <h5>Video sedang dianalisis</h5>
-                <p>
-                    Sistem sedang mengupload video dan memproses prediksi melalui Flask API.
-                </p>
+                <h5>Video Sedang Dianalisis</h5>
+                <p>Sistem sedang memeriksa video Anda untuk mencari indikasi manipulasi deepfake.</p>
+
+                <ol class="analysis-steps" id="analysisSteps" aria-label="Tahapan analisis">
+                    <li class="active"><i class="bi bi-cloud-arrow-up"></i><span>Mengunggah video</span></li>
+                    <li><i class="bi bi-film"></i><span>Membaca frame video</span></li>
+                    <li><i class="bi bi-person-bounding-box"></i><span>Menganalisis wajah dan pola visual</span></li>
+                    <li><i class="bi bi-clipboard2-check"></i><span>Menyusun hasil deteksi</span></li>
+                </ol>
 
                 <div class="loading-line">
                     <span></span>
                 </div>
+                <small>Proses ini dapat memerlukan beberapa saat. Jangan menutup halaman.</small>
             </div>
         </div>
 
