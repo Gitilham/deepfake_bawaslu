@@ -32,7 +32,7 @@ class DashboardController extends BaseController
             'total_deepfake' => $this->detectionModel->countByCondition(['predicted_label' => 'DEEPFAKE']),
             'total_real'     => $this->detectionModel->countByCondition(['predicted_label' => 'REAL']),
             'total_failed'   => $this->detectionModel->countByCondition(['status' => 'failed']),
-            'latest_data'    => $this->detectionModel->getAllWithUser(),
+            'latest_data'    => $this->detectionModel->getAllWithUser([], 10),
         ];
 
         return view('admin/dashboard', $data);

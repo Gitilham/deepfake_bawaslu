@@ -71,6 +71,7 @@ class AuthController extends BaseController
                 ->with('error', 'Email atau password salah.');
         }
 
+        session()->regenerate(true);
         session()->set([
             'user_id'      => $user['id'],
             'full_name'    => $user['full_name'],

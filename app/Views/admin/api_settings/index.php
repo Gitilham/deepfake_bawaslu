@@ -511,10 +511,13 @@ $fullPredictUrl = $baseUrl . $predictEndpoint;
         </div>
 
         <div class="api-header-actions">
-            <a href="<?= base_url('admin/api-settings/test') ?>" class="btn-api-light">
+            <form method="post" action="<?= base_url('admin/api-settings/test') ?>">
+                <?= csrf_field() ?>
+            <button type="submit" class="btn-api-light">
                 <i class="bi bi-wifi"></i>
                 Test Koneksi
-            </a>
+            </button>
+            </form>
 
             <a href="<?= esc($baseUrl) ?>" target="_blank" class="btn-api-glass">
                 <i class="bi bi-box-arrow-up-right"></i>
@@ -638,16 +641,6 @@ $fullPredictUrl = $baseUrl . $predictEndpoint;
                 </div>
 
                 <div class="api-actions">
-                    <!-- <a href="<?= base_url('admin/dashboard') ?>" class="btn btn-outline-secondary">
-                        <i class="bi bi-arrow-left me-1"></i>
-                        Kembali
-                    </a>
-
-                    <a href="<?= base_url('admin/api-settings/test') ?>" class="btn btn-outline-primary">
-                        <i class="bi bi-wifi me-1"></i>
-                        Test Koneksi
-                    </a> -->
-
                     <button type="submit" class="btn-api-primary">
                         <i class="bi bi-save me-1"></i>
                         Simpan Konfigurasi

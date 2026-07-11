@@ -26,7 +26,10 @@ $routes->post('/login', 'AuthController::attemptLogin');
 $routes->get('/register', 'AuthController::register');
 $routes->post('/register', 'AuthController::attemptRegister');
 
-$routes->get('/logout', 'AuthController::logout');
+$routes->post('/logout', 'AuthController::logout');
+$routes->get('/logout', static function () {
+    return redirect()->to('/');
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -42,15 +45,15 @@ $routes->group('admin', ['namespace' => 'App\Controllers\Admin', 'filter' => ['a
 
     $routes->get('users', 'UserController::index');
     $routes->get('users/detail/(:num)', 'UserController::detail/$1');
-    $routes->get('users/toggle/(:num)', 'UserController::toggleStatus/$1');
+    $routes->post('users/toggle/(:num)', 'UserController::toggleStatus/$1');
 
     $routes->get('detections', 'DetectionController::index');
     $routes->get('detections/detail/(:num)', 'DetectionController::detail/$1');
-    $routes->get('detections/review/(:num)', 'DetectionController::markReviewed/$1');
+    $routes->post('detections/review/(:num)', 'DetectionController::markReviewed/$1');
 
     $routes->get('api-settings', 'ApiSettingController::index');
     $routes->post('api-settings/update', 'ApiSettingController::update');
-    $routes->get('api-settings/test', 'ApiSettingController::testConnection');
+    $routes->post('api-settings/test', 'ApiSettingController::testConnection');
 
     $routes->get('reports', 'ReportController::index');
 

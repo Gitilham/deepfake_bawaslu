@@ -54,17 +54,19 @@
                                     </a>
 
                                     <?php if ((int) $user['is_active'] === 1) : ?>
-                                        <a href="<?= base_url('admin/users/toggle/' . $user['id']) ?>"
-                                           class="btn btn-sm btn-outline-danger"
-                                           onclick="return confirm('Nonaktifkan user ini?')">
+                                        <form method="post" action="<?= base_url('admin/users/toggle/' . $user['id']) ?>" onsubmit="return confirm('Nonaktifkan user ini?')">
+                                           <?= csrf_field() ?>
+                                           <button type="submit" class="btn btn-sm btn-outline-danger">
                                             Nonaktif
-                                        </a>
+                                           </button>
+                                        </form>
                                     <?php else : ?>
-                                        <a href="<?= base_url('admin/users/toggle/' . $user['id']) ?>"
-                                           class="btn btn-sm btn-outline-success"
-                                           onclick="return confirm('Aktifkan user ini?')">
+                                        <form method="post" action="<?= base_url('admin/users/toggle/' . $user['id']) ?>" onsubmit="return confirm('Aktifkan user ini?')">
+                                           <?= csrf_field() ?>
+                                           <button type="submit" class="btn btn-sm btn-outline-success">
                                             Aktifkan
-                                        </a>
+                                           </button>
+                                        </form>
                                     <?php endif; ?>
                                 </div>
                             </td>
@@ -81,5 +83,9 @@
         </table>
     </div>
 </div>
+
+<?php if (isset($pager)) : ?>
+    <div class="mt-3"><?= $pager->only(['page_users'])->links('users', 'default_full') ?></div>
+<?php endif; ?>
 
 <?= $this->endSection() ?>

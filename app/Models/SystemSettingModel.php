@@ -73,4 +73,26 @@ class SystemSettingModel extends Model
 
         return $data;
     }
+
+    public function getBool(string $key, bool $default = false): bool
+    {
+        return filter_var($this->getValue($key, $default ? 'true' : 'false'), FILTER_VALIDATE_BOOLEAN);
+    }
+
+    public function getInt(string $key, int $default, int $min, int $max): int
+    {
+        $value = (int) $this->getValue($key, (string) $default);
+        return max($min, min($max, $value));
+    }
+
+    public function getAllowedVideoTypes(): array
+    {
+        $configured = array_map(
+            static fn (string $type): string => strtolower(trim($type)),
+            explode(',', (string) $this->getValue('allowed_video_types', 'mp4,avi,mov,mkv'))
+        );
+
+        $allowed = array_values(array_unique(array_intersect($configured, ['mp4', 'avi', 'mov', 'mkv'])));
+        return $allowed === [] ? ['mp4', 'avi', 'mov', 'mkv'] : $allowed;
+    }
 }

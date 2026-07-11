@@ -17,7 +17,9 @@ $statusBadge = static function (?string $status): string {
 $labelBadge = static function (?string $label): string {
     return match ($label) {
         'REAL' => 'success',
+        'MENCURIGAKAN' => 'warning',
         'DEEPFAKE' => 'danger',
+        'NO_FACE' => 'info',
         'UNKNOWN' => 'secondary',
         default => 'secondary',
     };
@@ -53,7 +55,9 @@ $labelBadge = static function (?string $label): string {
                 <select name="predicted_label" class="form-select">
                     <option value="">Semua</option>
                     <option value="REAL" <?= (($filters['predicted_label'] ?? '') === 'REAL') ? 'selected' : '' ?>>REAL</option>
+                    <option value="MENCURIGAKAN" <?= (($filters['predicted_label'] ?? '') === 'MENCURIGAKAN') ? 'selected' : '' ?>>MENCURIGAKAN</option>
                     <option value="DEEPFAKE" <?= (($filters['predicted_label'] ?? '') === 'DEEPFAKE') ? 'selected' : '' ?>>DEEPFAKE</option>
+                    <option value="NO_FACE" <?= (($filters['predicted_label'] ?? '') === 'NO_FACE') ? 'selected' : '' ?>>NO_FACE</option>
                     <option value="UNKNOWN" <?= (($filters['predicted_label'] ?? '') === 'UNKNOWN') ? 'selected' : '' ?>>UNKNOWN</option>
                 </select>
             </div>
@@ -62,7 +66,7 @@ $labelBadge = static function (?string $label): string {
                 <label class="form-label">Status</label>
                 <select name="status" class="form-select">
                     <option value="">Semua</option>
-                    <?php foreach (['pending', 'processing', 'completed', 'failed', 'reviewed'] as $status) : ?>
+                    <?php foreach (['pending', 'processing', 'completed', 'failed'] as $status) : ?>
                         <option value="<?= esc($status) ?>" <?= (($filters['status'] ?? '') === $status) ? 'selected' : '' ?>>
                             <?= esc($status) ?>
                         </option>
@@ -154,5 +158,9 @@ $labelBadge = static function (?string $label): string {
         </table>
     </div>
 </div>
+
+<?php if (isset($pager)) : ?>
+    <div class="mt-3"><?= $pager->only(['start_date', 'end_date', 'predicted_label', 'status'])->links('detections', 'default_full') ?></div>
+<?php endif; ?>
 
 <?= $this->endSection() ?>

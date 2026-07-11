@@ -1,7 +1,7 @@
 <?= $this->extend('layouts/user') ?>
 
 <?= $this->section('styles') ?>
-<link rel="stylesheet" href="<?= base_url('assets/css/history.css') ?>">
+<link rel="stylesheet" href="<?= base_url('assets/css/history.css?v=1') ?>">
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
@@ -42,7 +42,9 @@ $statusBadge = static function (?string $status): string {
 $labelBadge = static function (?string $label): string {
     return match ($label) {
         'REAL' => 'success',
+        'MENCURIGAKAN' => 'warning',
         'DEEPFAKE' => 'danger',
+        'NO_FACE' => 'info',
         default => 'secondary',
     };
 };
@@ -202,5 +204,9 @@ $labelBadge = static function (?string $label): string {
         </table>
     </div>
 </div>
+
+<?php if (isset($pager)) : ?>
+    <div class="mt-3"><?= $pager->links('history', 'default_full') ?></div>
+<?php endif; ?>
 
 <?= $this->endSection() ?>

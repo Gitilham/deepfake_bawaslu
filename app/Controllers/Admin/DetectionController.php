@@ -28,7 +28,8 @@ class DetectionController extends BaseController
 
         $data = [
             'title'      => 'Data Deteksi Video',
-            'detections' => $this->detectionModel->getAllWithUser($filters),
+            'detections' => $this->detectionModel->paginateWithUser($filters, 20),
+            'pager'      => $this->detectionModel->pager,
             'filters'    => $filters,
         ];
 
@@ -56,7 +57,7 @@ class DetectionController extends BaseController
 
     public function markReviewed(int $id)
     {
-        $detection = $this->detectionModel->find($id);
+        $detection = $this->detectionModel->select('id, status, review_status')->find($id);
 
         if (! $detection) {
             return redirect()
@@ -64,8 +65,13 @@ class DetectionController extends BaseController
                 ->with('error', 'Data deteksi tidak ditemukan.');
         }
 
+        if (($detection['status'] ?? null) !== 'completed') {
+            return redirect()->to('/admin/detections/detail/' . $id)
+                ->with('error', 'Hanya deteksi yang selesai dapat ditandai reviewed.');
+        }
+
         $this->detectionModel->update($id, [
-            'status'      => 'reviewed',
+            'review_status' => 'reviewed',
             'reviewed_by' => session()->get('user_id'),
             'reviewed_at' => date('Y-m-d H:i:s'),
             'updated_at'  => date('Y-m-d H:i:s'),

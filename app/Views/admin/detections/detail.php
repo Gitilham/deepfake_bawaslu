@@ -4,6 +4,7 @@
 
 <?php
 $status = $detection['status'] ?? 'pending';
+$reviewStatus = $detection['review_status'] ?? 'unreviewed';
 $statusClass = match ($status) {
     'pending' => 'warning',
     'processing' => 'info',
@@ -16,7 +17,9 @@ $statusClass = match ($status) {
 $label = $detection['predicted_label'] ?? 'UNKNOWN';
 $labelClass = match ($label) {
     'REAL' => 'success',
+    'MENCURIGAKAN' => 'warning',
     'DEEPFAKE' => 'danger',
+    'NO_FACE' => 'info',
     default => 'secondary',
 };
 
@@ -48,13 +51,14 @@ $formatBytes = static function ($bytes): string {
             Kembali
         </a>
 
-        <?php if ($status !== 'reviewed') : ?>
-            <a href="<?= base_url('admin/detections/review/' . $detection['id']) ?>"
-               class="btn btn-bawaslu"
-               onclick="return confirm('Tandai data ini sebagai reviewed?')">
+        <?php if ($status === 'completed' && $reviewStatus !== 'reviewed') : ?>
+            <form action="<?= base_url('admin/detections/review/' . $detection['id']) ?>" method="post" onsubmit="return confirm('Tandai data ini sebagai reviewed?')">
+                <?= csrf_field() ?>
+                <button type="submit" class="btn btn-bawaslu">
                 <i class="bi bi-check2-circle me-1"></i>
                 Tandai Reviewed
-            </a>
+                </button>
+            </form>
         <?php endif; ?>
     </div>
 </div>
@@ -222,10 +226,10 @@ $formatBytes = static function ($bytes): string {
                 <tr>
                     <th width="60">No</th>
                     <th>Waktu Frame</th>
-                    <th>Label</th>
-                    <th>Confidence</th>
-                    <th>Real Score</th>
-                    <th>Fake Score</th>
+                    <th>Index Frame</th>
+                    <th>Wajah</th>
+                    <th>Confidence Wajah</th>
+                    <th>Status</th>
                 </tr>
             </thead>
             <tbody>
@@ -233,24 +237,20 @@ $formatBytes = static function ($bytes): string {
                     <?php $no = 1; ?>
                     <?php foreach ($frames as $frame) : ?>
                         <?php
-                        $frameLabel = $frame['label'] ?? 'UNKNOWN';
-                        $frameLabelClass = match ($frameLabel) {
-                            'REAL' => 'success',
-                            'DEEPFAKE' => 'danger',
-                            default => 'secondary',
-                        };
+                        $faceDetected = (bool) ($frame['face_detected'] ?? false);
+                        $frameLabelClass = $faceDetected ? 'success' : 'secondary';
                         ?>
                         <tr>
                             <td><?= $no++ ?></td>
                             <td><?= esc($frame['frame_time'] ?? '-') ?> detik</td>
+                            <td><?= esc($frame['source_frame_index'] ?? '-') ?></td>
                             <td>
                                 <span class="badge text-bg-<?= esc($frameLabelClass) ?>">
-                                    <?= esc($frameLabel) ?>
+                                    <?= $faceDetected ? 'Terdeteksi' : 'Tidak' ?>
                                 </span>
                             </td>
-                            <td><?= $frame['confidence'] !== null ? number_format((float) $frame['confidence'] * 100, 2) . '%' : '-' ?></td>
-                            <td><?= $frame['real_score'] !== null ? number_format((float) $frame['real_score'] * 100, 2) . '%' : '-' ?></td>
-                            <td><?= $frame['fake_score'] !== null ? number_format((float) $frame['fake_score'] * 100, 2) . '%' : '-' ?></td>
+                            <td><?= isset($frame['face_confidence']) ? number_format((float) $frame['face_confidence'] * 100, 2) . '%' : '-' ?></td>
+                            <td><?= esc($frame['frame_status'] ?? '-') ?></td>
                         </tr>
                     <?php endforeach; ?>
                 <?php else : ?>

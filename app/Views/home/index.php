@@ -1171,7 +1171,7 @@
 
 <?= $this->section('scripts') ?>
 
-<script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+<script src="<?= base_url('assets/js/lottie-player.js?v=2.0.8') ?>" defer></script>
 
 <script>
     const lpMobileToggle = document.getElementById('lpMobileToggle');

@@ -622,7 +622,9 @@ $statusBadge = static function (?string $status): string {
 $labelBadge = static function (?string $label): string {
     return match ($label) {
         'REAL' => 'success',
+        'MENCURIGAKAN' => 'warning',
         'DEEPFAKE' => 'danger',
+        'NO_FACE' => 'info',
         'UNKNOWN' => 'secondary',
         default => 'secondary',
     };
@@ -772,7 +774,9 @@ $formatPercent = static function ($value): string {
                         <select class="form-select filter-select" id="label" name="label">
                             <option value="">Semua Hasil</option>
                             <option value="REAL" <?= $labelFilter === 'REAL' ? 'selected' : '' ?>>REAL</option>
+                            <option value="MENCURIGAKAN" <?= $labelFilter === 'MENCURIGAKAN' ? 'selected' : '' ?>>MENCURIGAKAN</option>
                             <option value="DEEPFAKE" <?= $labelFilter === 'DEEPFAKE' ? 'selected' : '' ?>>DEEPFAKE</option>
+                            <option value="NO_FACE" <?= $labelFilter === 'NO_FACE' ? 'selected' : '' ?>>NO_FACE</option>
                             <option value="UNKNOWN" <?= $labelFilter === 'UNKNOWN' ? 'selected' : '' ?>>UNKNOWN</option>
                         </select>
                     </div>
@@ -785,7 +789,6 @@ $formatPercent = static function ($value): string {
                             <option value="processing" <?= $statusFilter === 'processing' ? 'selected' : '' ?>>processing</option>
                             <option value="pending" <?= $statusFilter === 'pending' ? 'selected' : '' ?>>pending</option>
                             <option value="failed" <?= $statusFilter === 'failed' ? 'selected' : '' ?>>failed</option>
-                            <option value="reviewed" <?= $statusFilter === 'reviewed' ? 'selected' : '' ?>>reviewed</option>
                         </select>
                     </div>
                 </div>
@@ -955,5 +958,9 @@ $formatPercent = static function ($value): string {
         </table>
     </div>
 </div>
+
+<?php if (isset($pager)) : ?>
+    <div class="mt-3"><?= $pager->only(['start_date', 'end_date', 'predicted_label', 'status'])->links('reports', 'default_full') ?></div>
+<?php endif; ?>
 
 <?= $this->endSection() ?>

@@ -53,9 +53,12 @@ $active = static function (string $path) use ($current): string {
 
         <hr class="mx-3">
 
-        <a href="<?= base_url('logout') ?>" class="nav-link text-danger">
+        <form method="post" action="<?= base_url('logout') ?>">
+            <?= csrf_field() ?>
+        <button type="submit" class="nav-link text-danger border-0 bg-transparent w-100 text-start">
             <i class="bi bi-box-arrow-right"></i>
             <span>Logout</span>
-        </a>
+        </button>
+        </form>
     </div>
 </aside>

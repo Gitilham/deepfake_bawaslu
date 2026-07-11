@@ -66,3 +66,34 @@ Additionally, make sure that the following extensions are enabled in your PHP:
 - json (enabled by default - don't turn it off)
 - [mysqlnd](http://php.net/manual/en/mysqlnd.install.php) if you plan to use MySQL
 - [libcurl](http://php.net/manual/en/curl.requirements.php) if you plan to use the HTTP\CURLRequest library
+
+## Deployment aplikasi Deepfake Bawaslu
+
+1. Salin `.env.example` menjadi `.env`, isi koneksi database dan `app.baseURL`.
+2. Tambahkan hostname backend AI pada `ML_API_ALLOWED_HOSTS`. Field upload dan endpoint tetap `POST /predict-video` dengan multipart field `video`.
+3. Jalankan `composer install --no-dev --optimize-autoloader` lalu `php spark migrate`.
+4. Pastikan document root menunjuk ke `public/` dan direktori `writable/` dapat ditulis oleh user web server.
+5. Biarkan `STORE_RAW_VIDEO=false`, `STORE_FULL_API_RESPONSE=false`, dan `STORE_FRAME_METADATA=false` kecuali kebutuhan audit telah disetujui.
+
+Asset CSS, JavaScript, gambar, font, dan JSON memakai URL berversi serta header cache satu tahun pada Apache melalui `public/.htaccess`. Untuk Nginx, gunakan aturan ekuivalen hanya pada asset statis:
+
+```nginx
+location ~* \.(css|js|png|jpe?g|gif|ico|svg|webp|woff2|json)$ {
+    expires 1y;
+    add_header Cache-Control "public, max-age=31536000, immutable";
+}
+```
+
+Jadwalkan maintenance harian (gunakan path absolut sesuai server):
+
+```cron
+0 2 * * * cd /path/to/project && php spark api-logs:prune
+30 2 * * * cd /path/to/project && php spark detections:cleanup
+```
+
+Kedua command mendukung pemeriksaan tanpa perubahan:
+
+```bash
+php spark api-logs:prune --dry-run
+php spark detections:cleanup --dry-run
+```

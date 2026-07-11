@@ -17,45 +17,25 @@ class ReportController extends BaseController
     public function index()
     {
         $filters = [
-            'start_date'      => $this->request->getGet('start_date'),
-            'end_date'        => $this->request->getGet('end_date'),
-            'predicted_label' => $this->request->getGet('predicted_label'),
+            'start_date'      => $this->request->getGet('start_date') ?? $this->request->getGet('date_from'),
+            'end_date'        => $this->request->getGet('end_date') ?? $this->request->getGet('date_to'),
+            'predicted_label' => $this->request->getGet('predicted_label') ?? $this->request->getGet('label'),
             'status'          => $this->request->getGet('status'),
         ];
 
-        $detections = $this->detectionModel->getAllWithUser($filters);
-
-        $summary = [
-            'total'    => count($detections),
-            'real'     => 0,
-            'deepfake' => 0,
-            'unknown'  => 0,
-            'failed'   => 0,
-        ];
-
-        foreach ($detections as $row) {
-            if ($row['predicted_label'] === 'REAL') {
-                $summary['real']++;
-            }
-
-            if ($row['predicted_label'] === 'DEEPFAKE') {
-                $summary['deepfake']++;
-            }
-
-            if ($row['predicted_label'] === 'UNKNOWN') {
-                $summary['unknown']++;
-            }
-
-            if ($row['status'] === 'failed') {
-                $summary['failed']++;
-            }
-        }
+        $summary = $this->detectionModel->getReportSummary($filters);
+        $detections = $this->detectionModel->paginateWithUser($filters, 20, 'reports');
 
         $data = [
             'title'      => 'Laporan Deteksi Video',
             'detections' => $detections,
             'filters'    => $filters,
             'summary'    => $summary,
+            'total_videos' => $summary['total'],
+            'total_real' => $summary['real'],
+            'total_deepfake' => $summary['deepfake'],
+            'total_failed' => $summary['failed'],
+            'pager'      => $this->detectionModel->pager,
         ];
 
         return view('admin/reports/index', $data);

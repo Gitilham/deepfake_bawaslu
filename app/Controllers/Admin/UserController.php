@@ -18,7 +18,8 @@ class UserController extends BaseController
     {
         $data = [
             'title' => 'Data User Masyarakat',
-            'users' => $this->userModel->getAllUsersMasyarakat(),
+            'users' => $this->userModel->paginateUsersMasyarakat(20),
+            'pager' => $this->userModel->pager,
         ];
 
         return view('admin/users/index', $data);

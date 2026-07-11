@@ -277,7 +277,9 @@ $statusClass = match ($status) {
 
 $labelClass = match ($label) {
     'REAL' => 'success',
+    'MENCURIGAKAN' => 'warning',
     'DEEPFAKE' => 'danger',
+    'NO_FACE' => 'info',
     default => 'secondary',
 };
 

@@ -2,7 +2,7 @@
 
 <?= $this->section('styles') ?>
 
-<link rel="stylesheet" href="<?= base_url('assets/css/dashboard.css') ?>">
+<link rel="stylesheet" href="<?= base_url('assets/css/dashboard.css?v=1') ?>">
 
 <?= $this->endSection() ?>
 
@@ -23,7 +23,9 @@ $statusBadge = static function (?string $status): string {
 $labelBadge = static function (?string $label): string {
     return match ($label) {
         'REAL' => 'success',
+        'MENCURIGAKAN' => 'warning',
         'DEEPFAKE' => 'danger',
+        'NO_FACE' => 'info',
         'UNKNOWN' => 'secondary',
         default => 'secondary',
     };
