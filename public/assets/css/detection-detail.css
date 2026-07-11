@@ -68,7 +68,7 @@
     padding: 30px;
     border: 1px solid var(--detail-border);
     border-radius: 22px;
-    background: linear-gradient(135deg, #fff 58%, var(--result-soft));
+    background: #fff;
     box-shadow: 0 16px 42px rgba(15, 23, 42, .07);
 }
 
@@ -206,8 +206,8 @@
 }
 
 .score-track span { display: block; height: 100%; min-width: 0; border-radius: inherit; }
-.score-real { background: linear-gradient(90deg, #10b981, #07845c); }
-.score-fake { background: linear-gradient(90deg, #ef4444, var(--detail-red)); }
+.score-real { background: #10b981; }
+.score-fake { background: var(--detail-red); }
 
 .uncertain-note,
 .error-box {

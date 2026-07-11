@@ -1,7 +1,8 @@
 <?= $this->extend('layouts/user') ?>
 
 <?= $this->section('styles') ?>
-<link rel="stylesheet" href="<?= base_url('assets/css/history.css?v=1') ?>">
+<?php $historyCss = FCPATH . 'assets/css/history.css'; ?>
+<link rel="stylesheet" href="<?= base_url('assets/css/history.css?v=' . (is_file($historyCss) ? filemtime($historyCss) : '1')) ?>">
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
@@ -50,21 +51,21 @@ $labelBadge = static function (?string $label): string {
 };
 ?>
 
-<div class="history-page-header">
+<header class="history-page-header">
     <div>
         <h3 class="page-title">Riwayat Deteksi</h3>
         <p>Daftar video yang pernah Anda upload dan hasil klasifikasinya.</p>
     </div>
 
     <a href="<?= base_url('user/detections/create') ?>" class="btn btn-bawaslu">
-        <i class="bi bi-upload me-1"></i>
+        <i class="bi bi-plus-circle me-1"></i>
         Deteksi Baru
     </a>
-</div>
+</header>
 
 <div class="history-summary-grid">
     <div class="history-summary-card">
-        <div class="history-summary-icon bg-primary bg-opacity-10 text-primary">
+        <div class="history-summary-icon total">
             <i class="bi bi-camera-video"></i>
         </div>
         <div>
@@ -74,7 +75,7 @@ $labelBadge = static function (?string $label): string {
     </div>
 
     <div class="history-summary-card">
-        <div class="history-summary-icon bg-success bg-opacity-10 text-success">
+        <div class="history-summary-icon real">
             <i class="bi bi-check-circle"></i>
         </div>
         <div>
@@ -84,7 +85,7 @@ $labelBadge = static function (?string $label): string {
     </div>
 
     <div class="history-summary-card">
-        <div class="history-summary-icon bg-danger bg-opacity-10 text-danger">
+        <div class="history-summary-icon fake">
             <i class="bi bi-exclamation-triangle"></i>
         </div>
         <div>
@@ -94,7 +95,7 @@ $labelBadge = static function (?string $label): string {
     </div>
 
     <div class="history-summary-card">
-        <div class="history-summary-icon bg-warning bg-opacity-10 text-warning">
+        <div class="history-summary-icon failed">
             <i class="bi bi-x-circle"></i>
         </div>
         <div>
@@ -110,7 +111,8 @@ $labelBadge = static function (?string $label): string {
         <span class="badge text-bg-light border"><?= esc($totalData) ?> Data</span>
     </div>
 
-    <div class="table-responsive">
+    <?php if (! empty($rows)) : ?>
+    <div class="history-table-desktop table-responsive">
         <table class="table table-hover align-middle history-table">
             <thead>
                 <tr>
@@ -124,8 +126,7 @@ $labelBadge = static function (?string $label): string {
             </thead>
 
             <tbody>
-                <?php if (! empty($rows)) : ?>
-                    <?php foreach ($rows as $row) : ?>
+                <?php foreach ($rows as $row) : ?>
                         <?php
                         $label = $row['predicted_label'] ?? 'UNKNOWN';
                         $status = $row['status'] ?? 'pending';
@@ -180,29 +181,41 @@ $labelBadge = static function (?string $label): string {
                                 </a>
                             </td>
                         </tr>
-                    <?php endforeach; ?>
-                <?php else : ?>
-                    <tr>
-                        <td colspan="6">
-                            <div class="history-empty">
-                                <div class="history-empty-icon">
-                                    <i class="bi bi-inbox"></i>
-                                </div>
-
-                                <h5>Belum ada riwayat deteksi</h5>
-                                <p>Upload video pertama Anda untuk melihat hasil deteksi.</p>
-
-                                <a href="<?= base_url('user/detections/create') ?>" class="btn btn-bawaslu">
-                                    <i class="bi bi-upload me-1"></i>
-                                    Upload Video
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                <?php endif; ?>
+                <?php endforeach; ?>
             </tbody>
         </table>
     </div>
+
+    <div class="history-list-mobile">
+        <?php foreach ($rows as $row) : ?>
+            <?php
+            $label = $row['predicted_label'] ?? 'UNKNOWN';
+            $status = $row['status'] ?? 'pending';
+            $confidence = $row['confidence'] ?? null;
+            ?>
+            <article class="history-mobile-card">
+                <div class="history-mobile-head">
+                    <span class="history-file-icon"><i class="bi bi-file-earmark-play"></i></span>
+                    <div><strong><?= esc($row['original_filename'] ?? '-') ?></strong><small>ID Deteksi: <?= esc($row['id'] ?? '-') ?></small></div>
+                </div>
+                <dl class="history-mobile-meta">
+                    <div><dt>Hasil</dt><dd><span class="badge text-bg-<?= esc($labelBadge($label)) ?>"><?= esc($label) ?></span></dd></div>
+                    <div><dt>Confidence</dt><dd><?= $confidence !== null && $confidence !== '' ? number_format((float) $confidence * 100, 2) . '%' : '-' ?></dd></div>
+                    <div><dt>Status</dt><dd><span class="badge text-bg-<?= esc($statusBadge($status)) ?>"><?= esc($status) ?></span></dd></div>
+                    <div><dt>Tanggal Upload</dt><dd><?= esc($row['created_at'] ?? '-') ?></dd></div>
+                </dl>
+                <a href="<?= base_url('user/history/detail/' . ($row['id'] ?? 0)) ?>" class="btn-history-detail">Lihat Detail</a>
+            </article>
+        <?php endforeach; ?>
+    </div>
+    <?php else : ?>
+        <div class="history-empty">
+            <div class="history-empty-icon"><i class="bi bi-file-earmark-play"></i></div>
+            <h5>Belum Ada Riwayat Deteksi</h5>
+            <p>Mulai deteksi video pertama Anda untuk melihat hasil analisis di halaman ini.</p>
+            <a href="<?= base_url('user/detections/create') ?>" class="btn btn-bawaslu"><i class="bi bi-cloud-arrow-up me-1"></i> Mulai Deteksi</a>
+        </div>
+    <?php endif; ?>
 </div>
 
 <?php if (isset($pager)) : ?>

@@ -48,11 +48,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const applyViewportState = () => {
         closeDrawer(false);
         if (desktopQuery.matches) {
-            body.classList.toggle('sidebar-collapsed', getStoredCollapsed());
+            const collapsed = getStoredCollapsed();
+            body.classList.toggle('sidebar-collapsed', collapsed);
             sidebar.setAttribute('aria-hidden', 'false');
+            toggle.setAttribute('aria-expanded', String(!collapsed));
+            toggle.setAttribute('aria-label', collapsed ? 'Perbesar sidebar' : 'Perkecil sidebar');
         } else {
             body.classList.remove('sidebar-collapsed');
             sidebar.setAttribute('aria-hidden', 'true');
+            toggle.setAttribute('aria-expanded', 'false');
+            toggle.setAttribute('aria-label', 'Buka menu navigasi');
         }
     };
 
@@ -81,4 +86,18 @@ document.addEventListener('DOMContentLoaded', () => {
     if (typeof desktopQuery.addEventListener === 'function') desktopQuery.addEventListener('change', applyViewportState);
     else desktopQuery.addListener(applyViewportState);
     applyViewportState();
+
+    document.querySelectorAll('[data-password-toggle]').forEach((passwordToggle) => {
+        const input = document.getElementById(passwordToggle.dataset.passwordToggle);
+        if (!input) return;
+
+        passwordToggle.addEventListener('click', () => {
+            const reveal = input.type === 'password';
+            input.type = reveal ? 'text' : 'password';
+            passwordToggle.setAttribute('aria-pressed', String(reveal));
+            passwordToggle.setAttribute('aria-label', `${reveal ? 'Sembunyikan' : 'Tampilkan'} ${input.labels?.[0]?.textContent?.trim() || 'password'}`);
+            const icon = passwordToggle.querySelector('i');
+            if (icon) icon.className = reveal ? 'bi bi-eye-slash' : 'bi bi-eye';
+        });
+    });
 });

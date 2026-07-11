@@ -1,152 +1,60 @@
 <?= $this->extend('layouts/user') ?>
 
+<?= $this->section('styles') ?>
+<?php $profileCss = FCPATH . 'assets/css/profile.css'; ?>
+<link rel="stylesheet" href="<?= base_url('assets/css/profile.css?v=' . (is_file($profileCss) ? filemtime($profileCss) : '1')) ?>">
+<?= $this->endSection() ?>
+
 <?= $this->section('content') ?>
+<?php
+$profileName = trim((string) ($user['full_name'] ?? 'User'));
+$profileInitial = function_exists('mb_substr') ? mb_substr($profileName, 0, 1) : substr($profileName, 0, 1);
+?>
+<header class="profile-header">
+    <span class="profile-avatar"><?= esc(strtoupper($profileInitial ?: 'U')) ?></span>
+    <div><span class="profile-eyebrow">Pengaturan akun</span><h1 class="page-title">Profil Saya</h1><p>Kelola informasi akun dan password Anda.</p></div>
+</header>
 
-<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-2">
-    <div>
-        <h3 class="page-title mb-1">Profil Saya</h3>
-        <p class="text-muted mb-0">
-            Kelola informasi akun dan password Anda.
-        </p>
-    </div>
-</div>
-
-<div class="row g-4">
-    <div class="col-lg-7">
-        <div class="card content-card">
-            <div class="card-header bg-white">
-                <h5 class="fw-bold mb-0">Informasi Profil</h5>
-            </div>
-
-            <div class="card-body">
-                <form action="<?= base_url('user/profile/update') ?>" method="post">
-                    <?= csrf_field() ?>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Nama Lengkap</label>
-                        <input
-                            type="text"
-                            name="full_name"
-                            class="form-control"
-                            value="<?= esc(old('full_name', $user['full_name'] ?? '')) ?>"
-                            required
-                        >
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Email</label>
-                        <input
-                            type="email"
-                            class="form-control"
-                            value="<?= esc($user['email'] ?? '') ?>"
-                            readonly
-                        >
-                        <small class="text-muted">Email tidak diubah dari halaman ini.</small>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Nomor HP</label>
-                        <input
-                            type="text"
-                            name="phone"
-                            class="form-control"
-                            value="<?= esc(old('phone', $user['phone'] ?? '')) ?>"
-                            placeholder="Opsional"
-                        >
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Alamat</label>
-                        <textarea
-                            name="address"
-                            class="form-control"
-                            rows="4"
-                            placeholder="Opsional"
-                        ><?= esc(old('address', $user['address'] ?? '')) ?></textarea>
-                    </div>
-
-                    <button type="submit" class="btn btn-bawaslu">
-                        <i class="bi bi-save me-1"></i>
-                        Simpan Profil
-                    </button>
-                </form>
-            </div>
+<div class="profile-grid">
+    <section class="profile-card profile-main-card" aria-labelledby="profileInfoTitle">
+        <div class="profile-card-header"><span><i class="bi bi-person-lines-fill"></i></span><div><h2 id="profileInfoTitle">Informasi Profil</h2><p>Pastikan informasi kontak Anda tetap akurat.</p></div></div>
+        <div class="profile-card-body">
+            <form action="<?= base_url('user/profile/update') ?>" method="post">
+                <?= csrf_field() ?>
+                <div class="profile-form-grid">
+                    <div class="form-field"><label for="fullName">Nama Lengkap</label><input id="fullName" type="text" name="full_name" class="form-control" value="<?= esc(old('full_name', $user['full_name'] ?? '')) ?>" required><small>Nama yang ditampilkan pada akun Anda.</small></div>
+                    <div class="form-field"><label for="email">Email</label><input id="email" type="email" class="form-control" value="<?= esc($user['email'] ?? '') ?>" readonly><small>Email tidak dapat diubah dari halaman ini.</small></div>
+                    <div class="form-field profile-full-field"><label for="phone">Nomor HP</label><input id="phone" type="text" name="phone" class="form-control" value="<?= esc(old('phone', $user['phone'] ?? '')) ?>" placeholder="Opsional"><small>Nomor yang dapat dihubungi bila diperlukan.</small></div>
+                    <div class="form-field profile-full-field"><label for="address">Alamat</label><textarea id="address" name="address" class="form-control" rows="5" placeholder="Opsional"><?= esc(old('address', $user['address'] ?? '')) ?></textarea></div>
+                </div>
+                <button type="submit" class="btn btn-bawaslu profile-submit"><i class="bi bi-check2-circle me-1"></i> Simpan Profil</button>
+            </form>
         </div>
-    </div>
+    </section>
 
-    <div class="col-lg-5">
-        <div class="card content-card">
-            <div class="card-header bg-white">
-                <h5 class="fw-bold mb-0">Ubah Password</h5>
-            </div>
-
-            <div class="card-body">
+    <div class="profile-side">
+        <section class="profile-card" aria-labelledby="passwordTitle">
+            <div class="profile-card-header"><span><i class="bi bi-shield-lock"></i></span><div><h2 id="passwordTitle">Ubah Password</h2><p>Gunakan minimal 8 karakter.</p></div></div>
+            <div class="profile-card-body">
                 <form action="<?= base_url('user/profile/password') ?>" method="post">
                     <?= csrf_field() ?>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Password Lama</label>
-                        <input
-                            type="password"
-                            name="old_password"
-                            class="form-control"
-                            required
-                        >
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Password Baru</label>
-                        <input
-                            type="password"
-                            name="new_password"
-                            class="form-control"
-                            minlength="8"
-                            required
-                        >
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Konfirmasi Password Baru</label>
-                        <input
-                            type="password"
-                            name="new_password_confirm"
-                            class="form-control"
-                            minlength="8"
-                            required
-                        >
-                    </div>
-
-                    <button type="submit" class="btn btn-outline-danger">
-                        <i class="bi bi-key me-1"></i>
-                        Ubah Password
-                    </button>
+                    <?php foreach ([['old_password', 'Password Lama'], ['new_password', 'Password Baru'], ['new_password_confirm', 'Konfirmasi Password Baru']] as $passwordField) : ?>
+                        <div class="form-field password-field"><label for="<?= esc($passwordField[0], 'attr') ?>"><?= esc($passwordField[1]) ?></label><div class="password-control"><input id="<?= esc($passwordField[0], 'attr') ?>" type="password" name="<?= esc($passwordField[0], 'attr') ?>" class="form-control" <?= $passwordField[0] !== 'old_password' ? 'minlength="8"' : '' ?> required><button type="button" class="password-toggle" data-password-toggle="<?= esc($passwordField[0], 'attr') ?>" aria-label="Tampilkan <?= esc($passwordField[1], 'attr') ?>" aria-pressed="false"><i class="bi bi-eye"></i></button></div></div>
+                    <?php endforeach; ?>
+                    <button type="submit" class="btn btn-outline-danger password-submit"><i class="bi bi-key me-1"></i> Ubah Password</button>
                 </form>
             </div>
-        </div>
+        </section>
 
-        <div class="card content-card mt-4">
-            <div class="card-header bg-white">
-                <h5 class="fw-bold mb-0">Informasi Akun</h5>
-            </div>
-
-            <div class="card-body">
-                <div class="mb-2">
-                    <div class="text-muted small">Role</div>
-                    <div class="fw-semibold">User Masyarakat</div>
-                </div>
-
-                <div class="mb-2">
-                    <div class="text-muted small">Login Terakhir</div>
-                    <div class="fw-semibold"><?= esc($user['last_login'] ?? '-') ?></div>
-                </div>
-
-                <div>
-                    <div class="text-muted small">Terdaftar</div>
-                    <div class="fw-semibold"><?= esc($user['created_at'] ?? '-') ?></div>
-                </div>
-            </div>
-        </div>
+        <section class="profile-card" aria-labelledby="accountTitle">
+            <div class="profile-card-header"><span><i class="bi bi-info-circle"></i></span><div><h2 id="accountTitle">Informasi Akun</h2><p>Ringkasan akun terdaftar.</p></div></div>
+            <dl class="account-list">
+                <div><dt><i class="bi bi-person-badge"></i> Role</dt><dd>User Masyarakat</dd></div>
+                <div><dt><i class="bi bi-envelope"></i> Email</dt><dd><?= esc($user['email'] ?? '-') ?></dd></div>
+                <div><dt><i class="bi bi-clock-history"></i> Login Terakhir</dt><dd><?= esc($user['last_login'] ?? '-') ?></dd></div>
+                <div><dt><i class="bi bi-calendar-check"></i> Terdaftar</dt><dd><?= esc($user['created_at'] ?? '-') ?></dd></div>
+            </dl>
+        </section>
     </div>
 </div>
-
 <?= $this->endSection() ?>

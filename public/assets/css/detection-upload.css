@@ -47,7 +47,7 @@
     position: absolute;
     inset: 0 0 auto 0;
     height: 8px;
-    background: linear-gradient(90deg, var(--df-red), var(--df-red-2), #111827);
+    background: var(--df-red);
 }
 
 .upload-top {
@@ -121,9 +121,7 @@
     min-height: 310px;
     border: 2px dashed #d7dce5;
     border-radius: 24px;
-    background:
-        linear-gradient(180deg, #fff, #f8fafc),
-        radial-gradient(circle at top right, rgba(179, 19, 18, .08), transparent 35%);
+    background: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -157,7 +155,7 @@
     height: 86px;
     margin: 0 auto 18px;
     border-radius: 26px;
-    background: linear-gradient(135deg, rgba(179,19,18,.10), rgba(230,57,70,.14));
+    background: rgba(179,19,18,.1);
     color: var(--df-red);
     display: flex;
     align-items: center;
@@ -217,7 +215,7 @@
 
 .upload-side {
     border-radius: 24px;
-    background: linear-gradient(180deg, #fff7f7, #ffffff);
+    background: #fff9f9;
     border: 1px solid #f1d4d4;
     padding: 22px;
 }
@@ -445,7 +443,7 @@
 .btn-detect {
     border: 0;
     border-radius: 14px;
-    background: linear-gradient(90deg, var(--df-red), var(--df-red-2));
+    background: var(--df-red);
     color: #fff;
     padding: 13px 22px;
     font-weight: 800;
@@ -584,7 +582,7 @@
     display: block;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, var(--df-red), var(--df-red-2), var(--df-red));
+    background: var(--df-red);
     background-size: 220% 100%;
     animation: lineMove 1.15s infinite linear;
 }
