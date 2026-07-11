@@ -11,10 +11,31 @@ $assetVersion = is_file($uploadCss) ? (string) filemtime($uploadCss) : '1';
 <?= $this->section('content') ?>
 
 <?php
+/*
+ * Compatibility fallback:
+ * Controller lama tidak mengirim status model.
+ * Jika pada masa depan controller mengirim $modelReady,
+ * nilai dari controller tetap menjadi sumber utama.
+ */
+$modelReady = isset($modelReady) ? (bool) $modelReady : true;
+$modelStatusMessage = $modelStatusMessage
+    ?? ($modelReady ? 'Model Siap Digunakan' : 'Model Tidak Tersedia');
+
 $maxSizeMb = (int) ($maxVideoSizeMb ?? $max_size_mb ?? 100);
-$allowedExtensions = $allowedVideoExtensions ?? ['mp4', 'avi', 'mov', 'mkv'];
+
+$allowedExtensionsSource = $allowedVideoExtensions
+    ?? explode(',', (string) ($allowed_types ?? 'mp4,avi,mov,mkv'));
+
+$allowedExtensions = array_values(array_filter(array_map(
+    static fn ($type): string => strtolower(trim((string) $type)),
+    (array) $allowedExtensionsSource
+)));
+
 $allowedTypes = implode(',', $allowedExtensions);
-$acceptTypes = implode(',', array_map(static fn (string $type): string => '.' . $type, $allowedExtensions));
+$acceptTypes = implode(',', array_map(
+    static fn (string $type): string => '.' . $type,
+    $allowedExtensions
+));
 ?>
 
 <div class="upload-header">

@@ -23,8 +23,7 @@ class HistoryController extends BaseController
 
         $data = [
             'title'      => 'Riwayat Deteksi',
-            'detections' => $this->detectionModel->paginateByUser($userId, 15),
-            'pager'      => $this->detectionModel->pager,
+            'detections' => $this->detectionModel->getByUser($userId),
         ];
 
         return view('user/history/index', $data);
