@@ -492,7 +492,7 @@ $getSetting = static function (string $key, string $default = '') use ($settingS
     return $default;
 };
 
-$baseUrl = old('flask_api_base_url', $getSetting('flask_api_base_url', 'http://127.0.0.1:5000'));
+$baseUrl = old('flask_api_base_url', $getSetting('flask_api_base_url', 'http://103.76.120.208:5000'));
 $predictEndpoint = old('flask_api_predict_endpoint', $getSetting('flask_api_predict_endpoint', '/predict-video'));
 
 $baseUrl = rtrim((string) $baseUrl, '/');

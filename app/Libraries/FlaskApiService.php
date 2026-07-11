@@ -22,7 +22,7 @@ class FlaskApiService
      */
     public function getBaseUrl(): string
     {
-        return rtrim($this->settingModel->getValue('flask_api_base_url', 'http://127.0.0.1:5000'), '/');
+        return rtrim($this->settingModel->getValue('flask_api_base_url', 'http://103.76.120.208:5000'), '/');
     }
 
     /**
