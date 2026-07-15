@@ -3,6 +3,8 @@
 <?= $this->section('styles') ?>
 <?php $profileCss = FCPATH . 'assets/css/profile.css'; ?>
 <link rel="stylesheet" href="<?= base_url('assets/css/profile.css?v=' . (is_file($profileCss) ? filemtime($profileCss) : '1')) ?>">
+<?php $photoCss = FCPATH . 'assets/css/profile-photo.css'; ?>
+<link rel="stylesheet" href="<?= base_url('assets/css/profile-photo.css?v=' . (is_file($photoCss) ? filemtime($photoCss) : '1')) ?>">
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
@@ -11,7 +13,11 @@ $profileName = trim((string) ($user['full_name'] ?? 'User'));
 $profileInitial = function_exists('mb_substr') ? mb_substr($profileName, 0, 1) : substr($profileName, 0, 1);
 ?>
 <header class="profile-header">
-    <span class="profile-avatar"><?= esc(strtoupper($profileInitial ?: 'U')) ?></span>
+    <?php if (! empty($user['profile_photo'])) : ?>
+        <span class="profile-avatar has-photo"><img src="<?= esc(base_url($user['profile_photo']), 'attr') ?>" alt="Foto profil"></span>
+    <?php else : ?>
+        <span class="profile-avatar"><?= esc(strtoupper($profileInitial ?: 'U')) ?></span>
+    <?php endif; ?>
     <div><span class="profile-eyebrow">Pengaturan akun</span><h1 class="page-title">Profil Saya</h1><p>Kelola informasi akun dan password Anda.</p></div>
 </header>
 
@@ -19,8 +25,9 @@ $profileInitial = function_exists('mb_substr') ? mb_substr($profileName, 0, 1) :
     <section class="profile-card profile-main-card" aria-labelledby="profileInfoTitle">
         <div class="profile-card-header"><span><i class="bi bi-person-lines-fill"></i></span><div><h2 id="profileInfoTitle">Informasi Profil</h2><p>Pastikan informasi kontak Anda tetap akurat.</p></div></div>
         <div class="profile-card-body">
-            <form action="<?= base_url('user/profile/update') ?>" method="post">
+            <form action="<?= base_url('user/profile/update') ?>" method="post" enctype="multipart/form-data">
                 <?= csrf_field() ?>
+                <?= $this->include('partials/profile_photo_field') ?>
                 <div class="profile-form-grid">
                     <div class="form-field"><label for="fullName">Nama Lengkap</label><input id="fullName" type="text" name="full_name" class="form-control" value="<?= esc(old('full_name', $user['full_name'] ?? '')) ?>" required><small>Nama yang ditampilkan pada akun Anda.</small></div>
                     <div class="form-field"><label for="email">Email</label><input id="email" type="email" class="form-control" value="<?= esc($user['email'] ?? '') ?>" readonly><small>Email tidak dapat diubah dari halaman ini.</small></div>

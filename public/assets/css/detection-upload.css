@@ -467,9 +467,9 @@
 .card-loading {
     position: absolute;
     inset: 8px 0 0 0;
-    background: rgba(255, 255, 255, .86);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background: rgba(248, 250, 252, .78);
+    backdrop-filter: blur(14px) saturate(120%);
+    -webkit-backdrop-filter: blur(14px) saturate(120%);
     z-index: 30;
     display: none;
     align-items: center;
@@ -483,12 +483,13 @@
 
 .loading-box {
     width: 100%;
-    max-width: 460px;
-    border-radius: 24px;
-    background: #fff;
-    border: 1px solid var(--df-border);
-    box-shadow: 0 22px 60px rgba(15, 23, 42, .16);
-    padding: 26px 24px;
+    max-width: 620px;
+    overflow: hidden;
+    border-radius: 30px;
+    background: rgba(255, 255, 255, .96);
+    border: 1px solid rgba(203, 213, 225, .78);
+    box-shadow: 0 32px 90px rgba(15, 23, 42, .18), 0 2px 10px rgba(15, 23, 42, .04);
+    padding: 30px 34px 28px;
     text-align: center;
     animation: popLoading .25s ease;
 }
@@ -505,29 +506,98 @@
     }
 }
 
-.loading-box lottie-player {
-    width: 145px;
-    height: 145px;
-    margin: 0 auto 8px;
+.loading-visual {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 300px;
+    height: 250px;
+    margin: -12px auto 4px;
+}
+
+.loading-animation {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    width: 300px;
+    height: 250px;
+    overflow: visible;
+}
+
+.loading-animation lottie-player {
+    width: 300px;
+    height: 250px;
+    transform: scale(1.9);
+    transform-origin: center;
+}
+
+.loading-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 10px;
+    padding: 6px 11px;
+    border-radius: 999px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
 }
 
 .loading-box h5 {
+    font-size: clamp(1.3rem, 2vw, 1.62rem);
     font-weight: 900;
     color: var(--df-dark);
     margin-bottom: 8px;
 }
 
 .loading-box p {
+    max-width: 470px;
+    margin-right: auto;
+    margin-left: auto;
     color: var(--df-muted);
     font-size: 13.5px;
     line-height: 1.7;
     margin-bottom: 15px;
 }
 
+.upload-progress-wrap {
+    width: min(100%, 520px);
+    margin: 18px auto 4px;
+}
+
+.upload-progress-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 8px;
+    color: #475569;
+    font-size: .86rem;
+    font-weight: 700;
+}
+
+.upload-progress-wrap progress {
+    display: block;
+    width: 100%;
+    height: 10px;
+    overflow: hidden;
+    border: 0;
+    border-radius: 999px;
+    background: #e2e8f0;
+    accent-color: #2563eb;
+}
+
+.upload-progress-wrap progress::-webkit-progress-bar { background: #e2e8f0; border-radius: 999px; }
+.upload-progress-wrap progress::-webkit-progress-value { background: linear-gradient(90deg, #2563eb, #38bdf8); border-radius: 999px; }
+.upload-progress-wrap progress::-moz-progress-bar { background: #2563eb; border-radius: 999px; }
+
 .analysis-steps {
     list-style: none;
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(4, 1fr);
     gap: 9px;
     margin: 0 0 16px;
     padding: 0;
@@ -535,11 +605,15 @@
 }
 
 .analysis-steps li {
+    position: relative;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
     display: flex;
     align-items: center;
     gap: 9px;
-    min-height: 44px;
-    padding: 9px 11px;
+    min-height: 76px;
+    padding: 11px 8px;
     border: 1px solid var(--df-border);
     border-radius: 12px;
     color: var(--df-muted);
@@ -549,47 +623,90 @@
 
 .analysis-steps li i {
     color: #94a3b8;
-    font-size: 17px;
+    font-size: 20px;
     flex-shrink: 0;
 }
 
 .analysis-steps li.active {
-    border-color: rgba(179, 19, 18, .35);
-    background: var(--df-red-soft, rgba(179, 19, 18, .08));
+    border-color: rgba(37, 99, 235, .3);
+    background: #eff6ff;
     color: var(--df-dark);
     font-weight: 700;
+    box-shadow: 0 8px 20px rgba(37, 99, 235, .09);
 }
 
 .analysis-steps li.active i {
-    color: var(--df-red);
+    color: #2563eb;
+    animation: stagePulse 1.2s ease-in-out infinite;
 }
 
-.loading-box small {
-    display: block;
-    margin-top: 13px;
+.analysis-steps li.completed {
+    border-color: rgba(5, 150, 105, .22);
+    background: rgba(5, 150, 105, .06);
+    color: #047857;
+}
+
+.analysis-steps li.completed i { color: #059669; }
+
+@keyframes stagePulse {
+    50% { transform: scale(1.12); }
+}
+
+.analysis-insight {
+    position: relative;
+    display: grid;
+    grid-template-columns: 48px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 13px;
+    margin: 2px 0 14px;
+    padding: 14px 16px;
+    border: 1px solid #dbeafe;
+    border-radius: 17px;
+    background: linear-gradient(135deg, #f8fbff, #f0f7ff);
+    text-align: left;
+}
+
+.analysis-insight.changing .analysis-insight-icon,
+.analysis-insight.changing .analysis-insight-copy {
+    animation: insightEnter .42s ease both;
+}
+
+.analysis-insight-icon {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: #fff;
+    color: #2563eb;
+    box-shadow: 0 8px 18px rgba(37, 99, 235, .11);
+    font-size: 21px;
+}
+
+.analysis-insight-copy { min-width: 0; }
+.analysis-insight-copy span { display: block; margin-bottom: 2px; color: #2563eb; font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.analysis-insight-copy strong { display: block; color: #172033; font-size: 13px; }
+.analysis-insight-copy p { margin: 3px 0 0; color: #64748b; font-size: 11.5px; line-height: 1.45; }
+
+.analysis-insight-dots { display: flex; align-items: center; gap: 5px; }
+.analysis-insight-dots span { width: 6px; height: 6px; border-radius: 50%; background: #cbd5e1; transition: width .3s ease, background-color .3s ease; }
+.analysis-insight-dots span.active { width: 18px; border-radius: 999px; background: #2563eb; }
+
+@keyframes insightEnter {
+    from { opacity: 0; transform: translateY(7px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.loading-note {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    margin-top: 4px !important;
+    padding-top: 15px;
+    border-top: 1px solid #eef2f7;
     color: var(--df-muted);
     line-height: 1.5;
-}
-
-.loading-line {
-    height: 9px;
-    background: #edf2f7;
-    border-radius: 999px;
-    overflow: hidden;
-}
-
-.loading-line span {
-    display: block;
-    width: 100%;
-    height: 100%;
-    background: var(--df-red);
-    background-size: 220% 100%;
-    animation: lineMove 1.15s infinite linear;
-}
-
-@keyframes lineMove {
-    from { background-position: 0 0; }
-    to { background-position: 220% 0; }
 }
 
 @media (max-width: 991px) {
@@ -661,7 +778,8 @@
     }
 
     .analysis-steps {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr 1fr;
+        gap: 7px;
     }
 
     .card-loading {
@@ -674,9 +792,41 @@
         padding: 20px 16px;
     }
 
-    .loading-box lottie-player {
-        width: 100px;
-        height: 100px;
+    .loading-visual {
+        width: 220px;
+        height: 180px;
+        margin-top: -6px;
+    }
+
+    .loading-animation {
+        width: 220px;
+        height: 180px;
+    }
+
+    .loading-animation lottie-player {
+        width: 220px;
+        height: 180px;
+        transform: scale(1.8);
+    }
+
+    .analysis-steps li {
+        min-height: 68px;
+        font-size: 11.5px;
+    }
+
+    .analysis-insight {
+        grid-template-columns: 42px minmax(0, 1fr);
+        padding: 12px;
+    }
+
+    .analysis-insight-icon {
+        width: 42px;
+        height: 42px;
+    }
+
+    .analysis-insight-dots {
+        grid-column: 1 / -1;
+        justify-content: center;
     }
 }
 
@@ -685,7 +835,9 @@
     .btn-detect,
     .upload-preview,
     .loading-box,
-    .loading-line span {
+    .analysis-steps li.active i,
+    .analysis-insight.changing .analysis-insight-icon,
+    .analysis-insight.changing .analysis-insight-copy {
         animation: none !important;
         transition: none !important;
         transform: none !important;

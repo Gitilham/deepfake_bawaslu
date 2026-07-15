@@ -4,6 +4,8 @@ namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
 use App\Models\UserModel;
+use App\Libraries\ProfilePhotoService;
+use Throwable;
 
 class ProfileController extends BaseController
 {
@@ -54,14 +56,38 @@ class ProfileController extends BaseController
 
         $fullName = trim((string) $this->request->getPost('full_name'));
 
-        $this->userModel->update($userId, [
-            'full_name'  => $fullName,
-            'phone'      => trim((string) $this->request->getPost('phone')),
-            'address'    => trim((string) $this->request->getPost('address')),
-            'updated_at' => date('Y-m-d H:i:s'),
-        ]);
+        $photo = $this->request->getFile('profile_photo');
+        $hasPhoto = $photo !== null && $photo->getError() !== UPLOAD_ERR_NO_FILE;
+        if ($hasPhoto && ! $this->validate([
+            'profile_photo' => [
+                'label' => 'Foto profil',
+                'rules' => 'uploaded[profile_photo]|is_image[profile_photo]|mime_in[profile_photo,image/jpeg,image/png,image/webp]|max_size[profile_photo,2048]|max_dims[profile_photo,2048,2048]',
+            ],
+        ])) {
+            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        }
 
-        session()->set('full_name', $fullName);
+        $data = [
+            'full_name' => $fullName,
+            'phone' => trim((string) $this->request->getPost('phone')),
+            'address' => trim((string) $this->request->getPost('address')),
+            'updated_at' => date('Y-m-d H:i:s'),
+        ];
+
+        try {
+            if ($hasPhoto && $photo !== null) {
+                $data['profile_photo'] = (new ProfilePhotoService())->store($photo, $userId, $this->userModel);
+            }
+        } catch (Throwable $error) {
+            return redirect()->back()->withInput()->with('error', $error->getMessage());
+        }
+
+        $this->userModel->update($userId, $data);
+
+        session()->set([
+            'full_name' => $fullName,
+            'profile_photo' => $data['profile_photo'] ?? session()->get('profile_photo'),
+        ]);
 
         return redirect()
             ->to('/admin/profile')

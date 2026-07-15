@@ -256,7 +256,7 @@ $formatBytes = static function ($bytes): string {
                 <?php else : ?>
                     <tr>
                         <td colspan="6" class="text-center text-muted py-4">
-                            Tidak ada detail frame dari Flask API.
+                            Tidak ada detail frame dari Backend API.
                         </td>
                     </tr>
                 <?php endif; ?>
@@ -267,7 +267,7 @@ $formatBytes = static function ($bytes): string {
 
 <div class="card table-card">
     <div class="card-header bg-white">
-        <h5 class="fw-bold mb-0">Response JSON Flask API</h5>
+        <h5 class="fw-bold mb-0">Response JSON Backend API</h5>
     </div>
 
     <div class="card-body">

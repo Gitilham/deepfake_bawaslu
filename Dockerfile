@@ -47,9 +47,13 @@ RUN composer install \
 COPY . .
 
 COPY php-upload.ini /usr/local/etc/php/conf.d/99-upload.ini
-# Permission writable
-RUN chown -R www-data:www-data writable \
-    && chmod -R 775 writable
+COPY apache-detection.conf /etc/apache2/conf-available/detection.conf
+RUN a2enconf detection
+# Folder runtime harus dapat ditulis oleh proses Apache (www-data).
+# public/uploads dibuat saat build agar named volume mewarisi ownership ini.
+RUN mkdir -p writable public/uploads/profiles \
+    && chown -R www-data:www-data writable public/uploads \
+    && chmod -R 775 writable public/uploads
 
 # Ubah DocumentRoot Apache ke folder public
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public

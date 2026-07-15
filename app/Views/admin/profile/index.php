@@ -1,5 +1,10 @@
 <?= $this->extend('layouts/admin') ?>
 
+<?= $this->section('styles') ?>
+<?php $photoCss = FCPATH . 'assets/css/profile-photo.css'; ?>
+<link rel="stylesheet" href="<?= base_url('assets/css/profile-photo.css?v=' . (is_file($photoCss) ? filemtime($photoCss) : '1')) ?>">
+<?= $this->endSection() ?>
+
 <?= $this->section('content') ?>
 
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-2">
@@ -17,8 +22,9 @@
             </div>
 
             <div class="card-body">
-                <form action="<?= base_url('admin/profile/update') ?>" method="post">
+                <form action="<?= base_url('admin/profile/update') ?>" method="post" enctype="multipart/form-data">
                     <?= csrf_field() ?>
+                    <?= $this->include('partials/profile_photo_field') ?>
 
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Nama Lengkap</label>

@@ -1,4 +1,4 @@
-<?= $this->extend('layouts/user') ?>
+<?= $this->extend($layout ?? 'layouts/user') ?>
 
 <?= $this->section('styles') ?>
 <?php
@@ -36,6 +36,8 @@ $acceptTypes = implode(',', array_map(
     static fn (string $type): string => '.' . $type,
     $allowedExtensions
 ));
+
+$detectionResult = session()->getFlashdata('detection_result');
 ?>
 
 <div class="upload-header">
@@ -70,7 +72,7 @@ $acceptTypes = implode(',', array_map(
             </div>
         </div>
 
-        <form action="<?= base_url('user/detections/store') ?>" method="post" enctype="multipart/form-data" id="uploadForm" novalidate
+        <form action="<?= base_url($formAction ?? 'user/detections/store') ?>" method="post" enctype="multipart/form-data" id="uploadForm" novalidate
               data-max-size-mb="<?= esc($maxSizeMb, 'attr') ?>"
               data-max-duration-seconds="<?= esc((int) ($maxVideoDuration ?? 0), 'attr') ?>"
               data-allowed-extensions="<?= esc(json_encode($allowedExtensions), 'attr') ?>">
@@ -238,28 +240,43 @@ $acceptTypes = implode(',', array_map(
 
         <div class="card-loading" id="cardLoading">
             <div class="loading-box">
-                <lottie-player
-                    src="<?= base_url('assets/landing/upload-loading.json') ?>"
-                    background="transparent"
-                    speed="1"
-                    loop
-                    autoplay>
-                </lottie-player>
-
-                <h5>Video Sedang Dianalisis</h5>
-                <p>Sistem sedang memeriksa video Anda untuk mencari indikasi manipulasi deepfake.</p>
-
-                <ol class="analysis-steps" id="analysisSteps" aria-label="Tahapan analisis">
-                    <li class="active"><i class="bi bi-cloud-arrow-up"></i><span>Mengunggah video</span></li>
-                    <li><i class="bi bi-film"></i><span>Membaca frame video</span></li>
-                    <li><i class="bi bi-person-bounding-box"></i><span>Menganalisis wajah dan pola visual</span></li>
-                    <li><i class="bi bi-clipboard2-check"></i><span>Menyusun hasil deteksi</span></li>
-                </ol>
-
-                <div class="loading-line">
-                    <span></span>
+                <div class="loading-visual" aria-hidden="true">
+                    <div class="loading-animation">
+                        <lottie-player
+                            src="<?= base_url('assets/landing/upload-loading.json') ?>"
+                            background="transparent"
+                            speed="1"
+                            loop
+                            autoplay>
+                        </lottie-player>
+                    </div>
                 </div>
-                <small>Proses ini dapat memerlukan beberapa saat. Jangan menutup halaman.</small>
+
+                <span class="loading-kicker"><i class="bi bi-stars"></i> Analisis video otomatis</span>
+
+                <h5 id="analysisTitle">Mengunggah Video</h5>
+
+                <div class="upload-progress-wrap" id="uploadProgressWrap" aria-live="polite">
+                    <div class="upload-progress-meta">
+                        <span id="uploadProgressLabel">Upload 0%</span>
+                        <span id="analysisElapsed">00:00</span>
+                    </div>
+                    <progress id="uploadProgress" max="100" value="0">0%</progress>
+                </div>
+
+                <div class="analysis-insight" id="analysisInsight" aria-live="polite">
+                    <div class="analysis-insight-icon" id="analysisInsightIcon"><i class="bi bi-lightbulb"></i></div>
+                    <div class="analysis-insight-copy">
+                        <span id="analysisInsightLabel">Tahukah Anda?</span>
+                        <strong id="analysisInsightTitle">Video diperiksa dari banyak frame</strong>
+                        <p id="analysisInsightText">Sistem membandingkan pola visual pada sejumlah frame, bukan hanya satu gambar.</p>
+                    </div>
+                    <div class="analysis-insight-dots" id="analysisInsightDots" aria-hidden="true">
+                        <span class="active"></span><span></span><span></span><span></span>
+                    </div>
+                </div>
+
+                <small class="loading-note"><i class="bi bi-shield-lock"></i> Video diproses dengan aman. Jangan menutup halaman.</small>
             </div>
         </div>
 
@@ -269,6 +286,74 @@ $acceptTypes = implode(',', array_map(
 <?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
 <script src="<?= base_url('assets/js/lottie-player.js?v=2.0.8') ?>" defer></script>
 <script src="<?= base_url('assets/js/detection-upload.js?v=' . $assetVersion) ?>" defer></script>
+<?php if (is_array($detectionResult)) : ?>
+<?php
+$modalPayload = json_encode($detectionResult, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_SLASHES);
+?>
+<script>
+window.addEventListener('DOMContentLoaded', function () {
+    const result = <?= $modalPayload ?: '{}' ?>;
+    const label = String(result.label || 'UNKNOWN').toUpperCase();
+    const confidence = result.confidence === null || result.confidence === undefined
+        ? null
+        : Math.max(0, Math.min(100, Number(result.confidence) * 100));
+
+    const presentations = {
+        REAL: {
+            icon: 'success',
+            title: 'Video Anda Cenderung Asli',
+            color: '#059669',
+            description: 'Sistem lebih condong menilai video ini sebagai video asli.'
+        },
+        DEEPFAKE: {
+            icon: 'warning',
+            title: 'Video Anda Cenderung Deepfake',
+            color: '#dc2626',
+            description: 'Sistem menemukan kecenderungan manipulasi deepfake pada video ini.'
+        },
+        MENCURIGAKAN: {
+            icon: 'question',
+            title: 'Hasil Video Mencurigakan',
+            color: '#d97706',
+            description: 'Skor berada tepat di batas keputusan. Video sebaiknya diperiksa lebih lanjut.'
+        },
+        NO_FACE: {
+            icon: 'info',
+            title: 'Wajah Tidak Terdeteksi',
+            color: '#2563eb',
+            description: 'Sistem belum dapat menilai video karena wajah tidak terlihat dengan cukup jelas.'
+        }
+    };
+    const view = presentations[label] || {
+        icon: 'info', title: 'Analisis Video Selesai', color: '#475569',
+        description: 'Proses analisis telah selesai. Buka detail untuk melihat hasil lengkap.'
+    };
+    const confidenceText = confidence === null || Number.isNaN(confidence)
+        ? ''
+        : '<div style="margin-top:14px;padding:12px;border-radius:12px;background:#f8fafc">Tingkat keyakinan: <strong>' + confidence.toFixed(2).replace('.', ',') + '%</strong></div>';
+
+    Swal.fire({
+        icon: view.icon,
+        title: '<strong>' + view.title + '</strong>',
+        html: '<p style="margin:0;color:#64748b">' + view.description + '</p>' + confidenceText,
+        confirmButtonText: '<i class="bi bi-eye me-1"></i> Lihat Detail',
+        showDenyButton: true,
+        denyButtonText: '<i class="bi bi-plus-circle me-1"></i> Deteksi Lagi',
+        confirmButtonColor: view.color,
+        denyButtonColor: '#64748b',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        width: 560,
+        customClass: { popup: 'rounded-4', confirmButton: 'rounded-3 px-4', denyButton: 'rounded-3 px-4' }
+    }).then(function (choice) {
+        if (choice.isConfirmed && result.detail_url) {
+            window.location.href = result.detail_url;
+        }
+    });
+});
+</script>
+<?php endif; ?>
 <?= $this->endSection() ?>

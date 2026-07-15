@@ -4,14 +4,14 @@
 
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-2">
     <div>
-        <h3 class="page-title mb-1">Data User Masyarakat</h3>
-        <p class="text-muted mb-0">Kelola akun user masyarakat yang terdaftar.</p>
+        <h3 class="page-title mb-1">Data Pengguna</h3>
+        <p class="text-muted mb-0">Kelola identitas, role, dan status seluruh akun.</p>
     </div>
 </div>
 
 <div class="card table-card">
     <div class="card-header bg-white">
-        <h5 class="fw-bold mb-0">Daftar User</h5>
+        <h5 class="fw-bold mb-0">Daftar Pengguna</h5>
     </div>
 
     <div class="table-responsive">
@@ -21,6 +21,7 @@
                     <th width="60">No</th>
                     <th>Nama</th>
                     <th>Email</th>
+                    <th>Role</th>
                     <th>No. HP</th>
                     <th>Status</th>
                     <th>Terdaftar</th>
@@ -38,6 +39,11 @@
                                 <small class="text-muted">ID: <?= esc($user['id']) ?></small>
                             </td>
                             <td><?= esc($user['email']) ?></td>
+                            <td>
+                                <span class="badge <?= ($user['role_name'] ?? '') === 'admin' ? 'text-bg-danger' : 'text-bg-primary' ?>">
+                                    <?= esc(($user['role_name'] ?? '') === 'admin' ? 'Administrator' : 'Masyarakat') ?>
+                                </span>
+                            </td>
                             <td><?= esc($user['phone'] ?: '-') ?></td>
                             <td>
                                 <?php if ((int) $user['is_active'] === 1) : ?>
@@ -49,8 +55,8 @@
                             <td><?= esc($user['created_at'] ?? '-') ?></td>
                             <td>
                                 <div class="d-flex gap-1">
-                                    <a href="<?= base_url('admin/users/detail/' . $user['id']) ?>" class="btn btn-sm btn-outline-primary">
-                                        Detail
+                                    <a href="<?= base_url('admin/users/edit/' . $user['id']) ?>" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-pencil-square me-1"></i>Edit
                                     </a>
 
                                     <?php if ((int) $user['is_active'] === 1) : ?>
@@ -74,8 +80,8 @@
                     <?php endforeach; ?>
                 <?php else : ?>
                     <tr>
-                        <td colspan="7" class="text-center text-muted py-4">
-                            Belum ada user masyarakat.
+                        <td colspan="8" class="text-center text-muted py-4">
+                            Belum ada data pengguna.
                         </td>
                     </tr>
                 <?php endif; ?>
@@ -85,7 +91,7 @@
 </div>
 
 <?php if (isset($pager)) : ?>
-    <div class="mt-3"><?= $pager->only(['page_users'])->links('users', 'default_full') ?></div>
+    <div class="mt-3"><?= $pager->only(['page_users'])->links('users', 'admin_full') ?></div>
 <?php endif; ?>
 
 <?= $this->endSection() ?>

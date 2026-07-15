@@ -18,19 +18,22 @@ class FlaskApiService
     }
 
     /**
-     * Ambil base URL Flask API dari tabel system_settings.
+     * Ambil base URL Backend API. Nilai database dapat diedit dari panel admin,
+     * sedangkan environment menjadi default saat database belum dikonfigurasi.
      */
     public function getBaseUrl(): string
     {
-        return rtrim($this->settingModel->getValue('flask_api_base_url', 'http://103.76.120.208:5000'), '/');
+        $defaultUrl = (string) env('ML_API_BASE_URL', 'http://deepfake-backend:5000');
+        return rtrim((string) $this->settingModel->getValue('flask_api_base_url', $defaultUrl), '/');
     }
 
     /**
-     * Ambil endpoint prediksi Flask API dari tabel system_settings.
+     * Ambil endpoint prediksi Backend API dari tabel system_settings.
      */
     public function getPredictEndpoint(): string
     {
-        $endpoint = $this->settingModel->getValue('flask_api_predict_endpoint', '/predict-video');
+        $defaultEndpoint = (string) env('ML_API_PREDICT_ENDPOINT', '/predict-video');
+        $endpoint = $this->settingModel->getValue('flask_api_predict_endpoint', $defaultEndpoint);
 
         if (! str_starts_with($endpoint, '/')) {
             $endpoint = '/' . $endpoint;
@@ -48,13 +51,11 @@ class FlaskApiService
     }
 
     /**
-     * Test koneksi sederhana ke base URL Flask API.
-     * Catatan:
-     * Flask kamu sebaiknya punya route GET / atau /health agar test ini valid.
+     * Test koneksi melalui endpoint health Backend API.
      */
-    public function testConnection(): array
+    public function testConnection(?string $baseUrl = null): array
     {
-        $url = $this->getBaseUrl();
+        $url = rtrim($baseUrl ?: $this->getBaseUrl(), '/') . '/health';
         $start = microtime(true);
 
         $ch = curl_init();
@@ -88,15 +89,15 @@ class FlaskApiService
         if ($error) {
             return [
                 'success' => false,
-                'message' => 'Gagal terhubung ke Flask API: ' . $error,
+                'message' => 'Gagal terhubung ke Backend API: ' . $error,
                 'http_status' => $httpCode,
                 'latency_ms' => $latency,
             ];
         }
 
         return [
-            'success' => $httpCode >= 200 && $httpCode < 500,
-            'message' => 'Koneksi Flask API berhasil dicek.',
+            'success' => $httpCode >= 200 && $httpCode < 300,
+            'message' => 'Koneksi Backend API berhasil dicek.',
             'http_status' => $httpCode,
             'latency_ms' => $latency,
             'response' => $response,
@@ -104,7 +105,7 @@ class FlaskApiService
     }
 
     /**
-     * Kirim video ke Flask API untuk prediksi deepfake.
+     * Kirim video ke Backend API untuk prediksi deepfake.
      *
      * @param string $videoPath Path absolut file video di server.
      * @param int|null $detectionId ID data video_detections.
@@ -149,7 +150,7 @@ class FlaskApiService
 
         curl_close($ch);
 
-        // Simpan log komunikasi CodeIgniter 4 ke Flask API.
+        // Simpan log komunikasi CodeIgniter 4 ke Backend API.
         $this->logModel->insert([
             'detection_id'      => $detectionId,
             'endpoint'          => $url,
@@ -168,7 +169,7 @@ class FlaskApiService
         if ($curlError) {
             return [
                 'success' => false,
-                'message' => 'Gagal menghubungi Flask API: ' . $curlError,
+                'message' => 'Gagal menghubungi Backend API: ' . $curlError,
                 'http_status' => $httpCode,
                 'raw_response' => $responseBody,
             ];
@@ -179,7 +180,7 @@ class FlaskApiService
         if (! is_array($json)) {
             return [
                 'success' => false,
-                'message' => 'Response Flask API bukan JSON yang valid.',
+                'message' => 'Response Backend API bukan JSON yang valid.',
                 'http_status' => $httpCode,
                 'raw_response' => $responseBody,
             ];

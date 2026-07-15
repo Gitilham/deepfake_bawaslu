@@ -492,8 +492,10 @@ $getSetting = static function (string $key, string $default = '') use ($settingS
     return $default;
 };
 
-$baseUrl = old('flask_api_base_url', $getSetting('flask_api_base_url', 'http://127.0.0.1:5000'));
-$predictEndpoint = old('flask_api_predict_endpoint', $getSetting('flask_api_predict_endpoint', '/predict-video'));
+$defaultBackendUrl = (string) env('DEEPFAKE_API_BASE_URL', 'http://deepfake-backend:5000');
+$defaultPredictEndpoint = (string) env('DEEPFAKE_API_PREDICT_ENDPOINT', '/predict-video');
+$baseUrl = old('flask_api_base_url', $getSetting('flask_api_base_url', $defaultBackendUrl));
+$predictEndpoint = old('flask_api_predict_endpoint', $getSetting('flask_api_predict_endpoint', $defaultPredictEndpoint));
 
 $baseUrl = rtrim((string) $baseUrl, '/');
 $predictEndpoint = '/' . ltrim((string) $predictEndpoint, '/');
@@ -503,23 +505,20 @@ $fullPredictUrl = $baseUrl . $predictEndpoint;
 <div class="api-header">
     <div class="api-header-content">
         <div>
-            <h3>Konfigurasi Flask API</h3>
+            <h3>Konfigurasi Backend API</h3>
             <p>
-                Atur koneksi antara website CodeIgniter 4 dengan backend Flask API yang menjalankan model deteksi deepfake.
-                Pastikan URL dan endpoint sesuai dengan server Flask yang sedang aktif.
+                Atur koneksi antara website CodeIgniter 4 dengan Backend API FastAPI yang menjalankan model deteksi deepfake.
+                URL dapat disesuaikan kembali ketika backend dipindahkan ke server lain.
             </p>
         </div>
 
         <div class="api-header-actions">
-            <form method="post" action="<?= base_url('admin/api-settings/test') ?>">
-                <?= csrf_field() ?>
-            <button type="submit" class="btn-api-light">
+            <button type="button" class="btn-api-light" id="testConnectionButton">
                 <i class="bi bi-wifi"></i>
-                Test Koneksi
+                <span>Test Koneksi</span>
             </button>
-            </form>
 
-            <a href="<?= esc($baseUrl) ?>" target="_blank" class="btn-api-glass">
+            <a href="<?= esc($baseUrl . '/docs') ?>" target="_blank" rel="noopener noreferrer" class="btn-api-glass">
                 <i class="bi bi-box-arrow-up-right"></i>
                 Buka API
             </a>
@@ -527,11 +526,13 @@ $fullPredictUrl = $baseUrl . $predictEndpoint;
     </div>
 </div>
 
+<div id="apiConnectionResult" class="alert d-none mb-4" role="alert"></div>
+
 <div class="api-status-grid">
     <div class="api-status-card url">
         <div class="api-status-top">
             <div>
-                <span>Base URL Flask</span>
+                <span>Base URL Backend</span>
                 <strong><?= esc($baseUrl) ?></strong>
             </div>
             <div class="api-status-icon url">
@@ -574,7 +575,7 @@ $fullPredictUrl = $baseUrl . $predictEndpoint;
                 </div>
                 <div>
                     <h5>Pengaturan Endpoint</h5>
-                    <small>Ubah URL Flask API dan endpoint prediksi video.</small>
+                    <small>Ubah URL Backend API dan endpoint prediksi video.</small>
                 </div>
             </div>
         </div>
@@ -585,7 +586,7 @@ $fullPredictUrl = $baseUrl . $predictEndpoint;
 
                 <div class="mb-4">
                     <label for="flask_api_base_url" class="form-label api-form-label">
-                        Base URL Flask API
+                        Base URL Backend API
                     </label>
 
                     <div class="input-group api-input-group">
@@ -598,13 +599,13 @@ $fullPredictUrl = $baseUrl . $predictEndpoint;
                             id="flask_api_base_url"
                             name="flask_api_base_url"
                             value="<?= esc($baseUrl) ?>"
-                            placeholder="http://127.0.0.1:5000"
+                            placeholder="http://deepfake-backend:5000"
                             required
                         >
                     </div>
 
                     <span class="api-help">
-                        Contoh: <code>http://127.0.0.1:5000</code>. Jangan tambahkan slash di akhir URL.
+                        Docker: <code>http://deepfake-backend:5000</code>. Server publik: <code>https://api.domainanda.com</code>. Jangan tambahkan slash di akhir URL.
                     </span>
                 </div>
 
@@ -629,7 +630,7 @@ $fullPredictUrl = $baseUrl . $predictEndpoint;
                     </div>
 
                     <span class="api-help">
-                        Endpoint ini dipakai saat website mengirim video ke Flask API.
+                        Endpoint ini dipakai saat website mengirim video ke Backend API.
                     </span>
                 </div>
 
@@ -680,8 +681,8 @@ $fullPredictUrl = $baseUrl . $predictEndpoint;
                         <i class="bi bi-arrow-left-right"></i>
                     </div>
                     <div>
-                        <strong>Kirim ke Flask API</strong>
-                        <span>Website mengirim file video ke endpoint prediksi Flask API.</span>
+                        <strong>Kirim ke Backend API</strong>
+                        <span>Website mengirim file video ke endpoint prediksi Backend API.</span>
                     </div>
                 </div>
 
@@ -691,7 +692,7 @@ $fullPredictUrl = $baseUrl . $predictEndpoint;
                     </div>
                     <div>
                         <strong>Model Melakukan Prediksi</strong>
-                        <span>Flask API menjalankan proses ekstraksi fitur dan klasifikasi REAL atau DEEPFAKE.</span>
+                        <span>Backend FastAPI menjalankan ekstraksi fitur dan klasifikasi REAL, MENCURIGAKAN, atau DEEPFAKE.</span>
                     </div>
                 </div>
 
@@ -708,8 +709,8 @@ $fullPredictUrl = $baseUrl . $predictEndpoint;
 
             <div class="api-warning">
                 <i class="bi bi-exclamation-circle me-1"></i>
-                Pastikan Flask API sedang berjalan sebelum user melakukan upload video.
-                Jalankan Flask dari folder <code>flask_api</code> menggunakan perintah <code>python app.py</code>.
+                Pastikan Backend API sedang berjalan sebelum user mengunggah video.
+                Pada Docker, frontend dan backend harus terhubung ke network <code>deepfake-net</code>.
             </div>
         </div>
     </div>
@@ -723,6 +724,10 @@ $fullPredictUrl = $baseUrl . $predictEndpoint;
     const baseUrlInput = document.getElementById('flask_api_base_url');
     const endpointInput = document.getElementById('flask_api_predict_endpoint');
     const previewUrl = document.getElementById('previewUrl');
+    const testButton = document.getElementById('testConnectionButton');
+    const connectionResult = document.getElementById('apiConnectionResult');
+    const settingForm = document.getElementById('apiSettingForm');
+    const csrfInput = settingForm ? settingForm.querySelector('input[name="<?= csrf_token() ?>"]') : null;
 
     function normalizeBaseUrl(value) {
         return value.replace(/\/+$/, '');
@@ -749,9 +754,51 @@ $fullPredictUrl = $baseUrl . $predictEndpoint;
         baseUrlInput.addEventListener('input', updatePreview);
         endpointInput.addEventListener('input', updatePreview);
 
-        document.getElementById('apiSettingForm').addEventListener('submit', function () {
+        settingForm.addEventListener('submit', function () {
             baseUrlInput.value = normalizeBaseUrl(baseUrlInput.value.trim());
             endpointInput.value = normalizeEndpoint(endpointInput.value.trim());
+        });
+    }
+
+    if (testButton && settingForm && connectionResult) {
+        testButton.addEventListener('click', async function () {
+            baseUrlInput.value = normalizeBaseUrl(baseUrlInput.value.trim());
+            endpointInput.value = normalizeEndpoint(endpointInput.value.trim());
+
+            connectionResult.className = 'alert alert-info mb-4';
+            connectionResult.textContent = 'Sedang menguji koneksi ke ' + baseUrlInput.value + '/health ...';
+            testButton.disabled = true;
+
+            try {
+                const response = await fetch('<?= base_url('admin/api-settings/test') ?>', {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfInput ? csrfInput.value : ''
+                    },
+                    body: new FormData(settingForm)
+                });
+                const contentType = response.headers.get('content-type') || '';
+                if (!contentType.includes('application/json')) {
+                    throw new Error('NON_JSON_RESPONSE');
+                }
+                const data = await response.json();
+                if (csrfInput && data.csrf_hash) {
+                    csrfInput.value = data.csrf_hash;
+                }
+                connectionResult.className = 'alert ' + (data.success ? 'alert-success' : 'alert-danger') + ' mb-4';
+                connectionResult.textContent = data.message
+                    + ' HTTP: ' + (data.http_status || '-')
+                    + (data.latency_ms !== null && data.latency_ms !== undefined ? ' • ' + data.latency_ms + ' ms' : '');
+            } catch (error) {
+                connectionResult.className = 'alert alert-danger mb-4';
+                connectionResult.textContent = error.message === 'NON_JSON_RESPONSE'
+                    ? 'Token keamanan kedaluwarsa. Muat ulang halaman lalu coba kembali.'
+                    : 'Test koneksi gagal. Backend tidak dapat dijangkau.';
+            } finally {
+                testButton.disabled = false;
+            }
         });
     }
 </script>

@@ -21,6 +21,7 @@ class UserModel extends Model
         'password',
         'phone',
         'address',
+        'profile_photo',
         'is_active',
         'last_login',
         'created_at',
@@ -72,7 +73,6 @@ class UserModel extends Model
     {
         return $this->select('users.id, users.full_name, users.email, users.phone, users.is_active, users.last_login, users.created_at, roles.role_name')
             ->join('roles', 'roles.id = users.role_id')
-            ->where('roles.role_name', 'user')
             ->where('users.deleted_at', null)
             ->orderBy('users.id', 'DESC')
             ->paginate(max(10, min(50, $perPage)), 'users');

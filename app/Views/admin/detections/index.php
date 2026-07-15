@@ -29,8 +29,11 @@ $labelBadge = static function (?string $label): string {
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-2">
     <div>
         <h3 class="page-title mb-1">Data Deteksi Video</h3>
-        <p class="text-muted mb-0">Semua riwayat deteksi video dari user masyarakat.</p>
+        <p class="text-muted mb-0">Kelola seluruh riwayat deteksi dan lakukan pemeriksaan video baru.</p>
     </div>
+    <a href="<?= base_url('admin/detections/create') ?>" class="btn btn-bawaslu">
+        <i class="bi bi-cloud-arrow-up me-1"></i> Deteksi Video
+    </a>
 </div>
 
 <div class="card table-card mb-4">
@@ -160,7 +163,7 @@ $labelBadge = static function (?string $label): string {
 </div>
 
 <?php if (isset($pager)) : ?>
-    <div class="mt-3"><?= $pager->only(['start_date', 'end_date', 'predicted_label', 'status'])->links('detections', 'default_full') ?></div>
+    <div class="mt-3"><?= $pager->only(['start_date', 'end_date', 'predicted_label', 'status'])->links('detections', 'admin_full') ?></div>
 <?php endif; ?>
 
 <?= $this->endSection() ?>

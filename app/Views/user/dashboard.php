@@ -61,8 +61,8 @@ $latestRows = array_slice($latest_data ?? [], 0, 5);
             <?php
             $guides = [
                 ['icon' => 'bi-cloud-arrow-up', 'title' => 'Upload Video', 'text' => 'Pilih video yang ingin dianalisis melalui menu Deteksi Video.'],
-                ['icon' => 'bi-cpu', 'title' => 'Proses Model AI', 'text' => 'Sistem mengirim video ke Flask API untuk diproses oleh model deepfake.'],
-                ['icon' => 'bi-check2-circle', 'title' => 'Lihat Hasil', 'text' => 'Hasil klasifikasi akan ditampilkan sebagai REAL atau DEEPFAKE.'],
+                ['icon' => 'bi-cpu', 'title' => 'Proses Model AI', 'text' => 'Sistem mengirim video ke Backend API untuk diproses oleh model deepfake.'],
+                ['icon' => 'bi-check2-circle', 'title' => 'Lihat Hasil', 'text' => 'Hasil klasifikasi ditampilkan sebagai REAL, MENCURIGAKAN, atau DEEPFAKE.'],
             ];
             ?>
             <?php foreach ($guides as $index => $guide) : ?>

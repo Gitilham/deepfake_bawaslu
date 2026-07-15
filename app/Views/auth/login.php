@@ -480,7 +480,7 @@
                         <span>Classification</span>
                     </div>
                     <div class="login-point">
-                        <strong>Flask</strong>
+                        <strong>FastAPI</strong>
                         <span>API Model</span>
                     </div>
                 </div>

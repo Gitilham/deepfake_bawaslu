@@ -3,6 +3,7 @@ $fullName = (string) (session()->get('full_name') ?? 'User');
 $trimmedName = trim($fullName);
 $initial = function_exists('mb_substr') ? mb_substr($trimmedName, 0, 1) : substr($trimmedName, 0, 1);
 $initial = strtoupper($initial ?: 'U');
+$profilePhoto = (string) (session()->get('profile_photo') ?? '');
 ?>
 <header class="user-topbar">
     <div class="topbar-left">
@@ -18,7 +19,11 @@ $initial = strtoupper($initial ?: 'U');
     <div class="topbar-actions">
         <div class="dropdown">
             <button class="user-dropdown-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Buka menu akun <?= esc($fullName, 'attr') ?>">
-                <span class="user-avatar"><?= esc($initial) ?></span>
+                <?php if ($profilePhoto !== '') : ?>
+                    <span class="user-avatar has-photo"><img src="<?= esc(base_url($profilePhoto), 'attr') ?>" alt="Foto profil"></span>
+                <?php else : ?>
+                    <span class="user-avatar"><?= esc($initial) ?></span>
+                <?php endif; ?>
                 <span class="user-name"><?= esc($fullName) ?></span>
             </button>
             <ul class="dropdown-menu dropdown-menu-end">

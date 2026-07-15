@@ -550,7 +550,7 @@ $labelBadge = static function (?string $label): string {
                 </div>
                 <div class="hero-badge">
                     <i class="bi bi-cpu"></i>
-                    Integrasi Flask API
+                    Integrasi Backend API
                 </div>
                 <div class="hero-badge">
                     <i class="bi bi-bar-chart"></i>
@@ -560,9 +560,9 @@ $labelBadge = static function (?string $label): string {
         </div>
 
         <div class="hero-action-group">
-            <a href="<?= base_url('admin/detections') ?>" class="hero-btn-light">
-                <i class="bi bi-camera-video"></i>
-                Data Deteksi
+            <a href="<?= base_url('admin/detections/create') ?>" class="hero-btn-light">
+                <i class="bi bi-cloud-arrow-up"></i>
+                Deteksi Video
             </a>
 
             <a href="<?= base_url('admin/reports') ?>" class="hero-btn-dark">
@@ -730,13 +730,13 @@ $labelBadge = static function (?string $label): string {
                 </div>
             </a>
 
-            <a href="<?= base_url('admin/flask') ?>" class="quick-action">
+            <a href="<?= base_url('admin/api-settings') ?>" class="quick-action">
                 <div class="quick-action-icon">
                     <i class="bi bi-hdd-network"></i>
                 </div>
                 <div>
                     <strong>Konfigurasi API</strong>
-                    <span>Atur koneksi Flask API dan endpoint.</span>
+                    <span>Atur koneksi Backend API dan endpoint.</span>
                 </div>
             </a>
 

@@ -1,208 +1,238 @@
 'use strict';
 
 document.addEventListener('DOMContentLoaded', () => {
-    const uploadForm = document.getElementById('uploadForm');
-    if (!uploadForm) return;
+    const form = document.getElementById('uploadForm');
+    if (!form) return;
 
-    const uploadCard = document.getElementById('uploadCard');
-    const videoInput = document.getElementById('video');
-    const uploadZone = document.getElementById('uploadZone');
-    const uploadPreview = document.getElementById('uploadPreview');
-    const previewPlayer = document.getElementById('previewPlayer');
-    const selectedFileName = document.getElementById('selectedFileName');
-    const selectedFileSize = document.getElementById('selectedFileSize');
-    const selectedFileType = document.getElementById('selectedFileType');
-    const changeVideoBtn = document.getElementById('changeVideoBtn');
-    const removeVideoBtn = document.getElementById('removeVideoBtn');
-    const submitBtn = document.getElementById('submitBtn');
-    const uploadValidation = document.getElementById('uploadValidation');
-    const analysisSteps = Array.from(document.querySelectorAll('#analysisSteps li'));
-    const maxSizeMb = Number(uploadForm.dataset.maxSizeMb || 100);
-    const maxDuration = Number(uploadForm.dataset.maxDurationSeconds || 0);
-    let allowedExt = ['mp4', 'avi', 'mov', 'mkv'];
-
-    try {
-        const configured = JSON.parse(uploadForm.dataset.allowedExtensions || '[]');
-        if (Array.isArray(configured) && configured.length) allowedExt = configured;
-    } catch (_) {
-        // Konfigurasi server sudah divalidasi; fallback aman dipakai bila atribut rusak.
-    }
-
+    const byId = (id) => document.getElementById(id);
+    const card = byId('uploadCard');
+    const input = byId('video');
+    const zone = byId('uploadZone');
+    const preview = byId('uploadPreview');
+    const player = byId('previewPlayer');
+    const validation = byId('uploadValidation');
+    const submit = byId('submitBtn');
+    const progress = byId('uploadProgress');
+    const progressLabel = byId('uploadProgressLabel');
+    const title = byId('analysisTitle');
+    const elapsed = byId('analysisElapsed');
+    const maxSizeMb = Number(form.dataset.maxSizeMb || 500);
     const maxSizeBytes = maxSizeMb * 1024 * 1024;
+    let extensions = ['mp4', 'avi', 'mov', 'mkv', 'webm'];
     let selectedFile = null;
     let previewUrl = null;
-    let isSubmitting = false;
-    let stageTimer = null;
+    let activeRequest = null;
+    let elapsedTimer = null;
+    let insightTimer = null;
+    let insightIndex = 0;
+    let browserUploadStarted = 0;
+    let browserUploadSeconds = null;
 
-    const formatFileSize = (bytes) => {
-        const units = ['B', 'KB', 'MB', 'GB'];
-        let size = bytes;
-        let index = 0;
-        while (size >= 1024 && index < units.length - 1) {
-            size /= 1024;
-            index++;
-        }
-        return `${size.toFixed(size >= 10 ? 1 : 2)} ${units[index]}`;
+    try {
+        const configured = JSON.parse(form.dataset.allowedExtensions || '[]');
+        if (Array.isArray(configured) && configured.length) extensions = configured;
+    } catch (_) { /* Server tetap melakukan validasi final. */ }
+
+    const extensionOf = (name) => String(name).toLowerCase().split('.').pop();
+    const fileSize = (bytes) => {
+        if (bytes < 1024) return `${bytes} B`;
+        if (bytes < 1048576) return `${(bytes / 1024).toFixed(1)} KB`;
+        return `${(bytes / 1048576).toFixed(1)} MB`;
     };
-
-    const getExtension = (filename) => {
-        const parts = String(filename).toLowerCase().split('.');
-        return parts.length > 1 ? parts.pop() : '';
+    const showError = (text) => {
+        validation.textContent = text;
+        validation.hidden = false;
     };
-
-    const showValidation = (message) => {
-        if (!uploadValidation) {
-            window.alert(message);
-            return;
-        }
-        uploadValidation.textContent = message;
-        uploadValidation.hidden = false;
-        uploadValidation.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    const clearError = () => {
+        validation.textContent = '';
+        validation.hidden = true;
     };
-
-    const clearValidation = () => {
-        if (!uploadValidation) return;
-        uploadValidation.textContent = '';
-        uploadValidation.hidden = true;
-    };
-
-    const revokePreviewUrl = () => {
-        if (previewUrl) {
-            URL.revokeObjectURL(previewUrl);
-            previewUrl = null;
-        }
-    };
-
-    const clearVideo = () => {
-        selectedFile = null;
-        videoInput.value = '';
-        previewPlayer.pause();
-        previewPlayer.removeAttribute('src');
-        previewPlayer.load();
-        revokePreviewUrl();
-        uploadPreview.classList.remove('show');
-        uploadZone.classList.remove('hide');
-        selectedFileName.textContent = '-';
-        selectedFileSize.textContent = '-';
-        selectedFileType.textContent = '-';
-        clearValidation();
-    };
-
-    const validateFile = (file) => {
+    const validate = (file) => {
         if (!file) return 'Silakan pilih video terlebih dahulu.';
-        if (!allowedExt.includes(getExtension(file.name))) {
-            return `Format file tidak didukung. Gunakan video dengan format ${allowedExt.map((item) => item.toUpperCase()).join(', ')}.`;
-        }
-        if (file.size <= 0) return 'File video kosong.';
-        if (file.size > maxSizeBytes) return `Ukuran video melebihi batas maksimal ${maxSizeMb} MB.`;
+        if (file.size < 1) return 'File video kosong.';
+        if (file.size > maxSizeBytes) return `Ukuran video melebihi batas ${maxSizeMb} MB.`;
+        if (!extensions.includes(extensionOf(file.name))) return `Format harus ${extensions.join(', ').toUpperCase()}.`;
+        if (file.type && !file.type.startsWith('video/') && file.type !== 'application/octet-stream') return 'Tipe file tidak terlihat seperti video.';
         return '';
     };
-
-    const showPreview = (file) => {
-        const error = validateFile(file);
-        if (error) {
-            clearVideo();
-            showValidation(error);
-            return;
-        }
-        clearValidation();
+    const revokePreview = () => {
+        if (previewUrl) URL.revokeObjectURL(previewUrl);
+        previewUrl = null;
+    };
+    const selectFile = (file) => {
+        const error = validate(file);
+        if (error) return showError(error);
+        clearError();
         selectedFile = file;
-        selectedFileName.textContent = file.name;
-        selectedFileSize.textContent = formatFileSize(file.size);
-        selectedFileType.textContent = file.type || getExtension(file.name).toUpperCase();
-        revokePreviewUrl();
+        byId('selectedFileName').textContent = file.name;
+        byId('selectedFileSize').textContent = fileSize(file.size);
+        byId('selectedFileType').textContent = file.type || extensionOf(file.name).toUpperCase();
+        revokePreview();
         previewUrl = URL.createObjectURL(file);
-        previewPlayer.src = previewUrl;
-        previewPlayer.load();
-        uploadZone.classList.add('hide');
-        uploadPreview.classList.add('show');
+        player.src = previewUrl;
+        zone.classList.add('hide');
+        preview.classList.add('show');
+    };
+    const clearFile = () => {
+        selectedFile = null;
+        input.value = '';
+        player.pause();
+        player.removeAttribute('src');
+        revokePreview();
+        preview.classList.remove('show');
+        zone.classList.remove('hide');
+        clearError();
+    };
+    const setStage = (heading) => {
+        title.textContent = heading;
+    };
+    const insights = [
+        { icon: 'bi-film', label: 'Proses analisis', title: 'Video diperiksa dari banyak frame', text: 'Sistem membandingkan pola visual pada sejumlah frame, bukan hanya satu gambar.', heading: 'Menganalisis Rangkaian Frame' },
+        { icon: 'bi-person-bounding-box', label: 'Pemeriksaan visual', title: 'Wajah dianalisis secara konsisten', text: 'Model memeriksa karakteristik wajah dan perubahan visual antarrangkaian frame.', heading: 'Memeriksa Pola Wajah' },
+        { icon: 'bi-cpu', label: 'Model V21', title: 'Fitur visual diproses oleh model', text: 'Hasil encoder dan classifier digunakan backend untuk menentukan kecenderungan video.', heading: 'Mengolah Fitur Visual' },
+        { icon: 'bi-shield-check', label: 'Perlu diingat', title: 'Hasil adalah verifikasi awal', text: 'Gunakan hasil deteksi sebagai bantuan dan lakukan pemeriksaan lanjutan untuk keputusan penting.', heading: 'Menyiapkan Hasil Analisis' }
+    ];
+    const showInsight = (index) => {
+        const insight = insights[index % insights.length];
+        const insightBox = byId('analysisInsight');
+        insightBox.classList.remove('changing');
+        void insightBox.offsetWidth;
+        byId('analysisInsightIcon').innerHTML = `<i class="bi ${insight.icon}"></i>`;
+        byId('analysisInsightLabel').textContent = insight.label;
+        byId('analysisInsightTitle').textContent = insight.title;
+        byId('analysisInsightText').textContent = insight.text;
+        Array.from(byId('analysisInsightDots').children).forEach((dot, position) => dot.classList.toggle('active', position === index % insights.length));
+        title.textContent = insight.heading;
+        insightBox.classList.add('changing');
+    };
+    const startInsights = () => {
+        if (insightTimer) window.clearInterval(insightTimer);
+        insightIndex = 0;
+        showInsight(insightIndex);
+        insightTimer = window.setInterval(() => showInsight(++insightIndex), 3000);
+    };
+    const stopInsights = () => {
+        if (insightTimer) window.clearInterval(insightTimer);
+        insightTimer = null;
+    };
+    const beginElapsed = () => {
+        const started = performance.now();
+        elapsedTimer = window.setInterval(() => {
+            const seconds = Math.floor((performance.now() - started) / 1000);
+            elapsed.textContent = `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
+        }, 250);
+    };
+    const reset = () => {
+        activeRequest = null;
+        card.classList.remove('loading');
+        if (elapsedTimer) window.clearInterval(elapsedTimer);
+        stopInsights();
+        elapsedTimer = null;
+        elapsed.textContent = '00:00';
+        progress.value = 0;
+        progressLabel.textContent = 'Upload 0%';
+        setStage('Mengunggah Video');
+        if (!submit.hasAttribute('data-model-unavailable')) submit.disabled = false;
+        submit.innerHTML = '<i class="bi bi-shield-check me-1"></i> Mulai Deteksi';
+    };
+    const updateCsrf = (hash) => {
+        if (!hash) return;
+        const token = form.querySelector('input[type="hidden"]');
+        if (token) token.value = hash;
+    };
+    const showResult = (result) => {
+        const label = String(result.label || 'UNKNOWN').toUpperCase();
+        const views = {
+            REAL: ['success', 'Video Anda Cenderung Asli', 'Sistem lebih condong menilai video ini sebagai video asli.', '#059669'],
+            DEEPFAKE: ['warning', 'Video Anda Cenderung Deepfake', 'Sistem menemukan kecenderungan manipulasi deepfake pada video ini.', '#dc2626'],
+            MENCURIGAKAN: ['question', 'Hasil Video Mencurigakan', 'Backend menetapkan hasil pada batas keputusan dan perlu pemeriksaan lebih lanjut.', '#d97706'],
+            NO_FACE: ['info', 'Wajah Tidak Terdeteksi', 'Sistem belum dapat menilai video karena wajah tidak cukup terdeteksi.', '#2563eb']
+        };
+        const view = views[label] || ['info', 'Analisis Video Selesai', 'Buka detail untuk melihat hasil lengkap.', '#475569'];
+        Swal.fire({
+            icon: view[0], title: `<strong>${view[1]}</strong>`, text: view[2],
+            confirmButtonText: 'Lihat Detail', showDenyButton: true, denyButtonText: 'Deteksi Lagi',
+            confirmButtonColor: view[3], denyButtonColor: '#64748b', allowOutsideClick: false
+        }).then((choice) => {
+            if (choice.isConfirmed && result.detail_url) window.location.href = result.detail_url;
+            else window.location.reload();
+        });
     };
 
-    videoInput.addEventListener('change', () => showPreview(videoInput.files[0]));
-    changeVideoBtn.addEventListener('click', () => videoInput.click());
-    removeVideoBtn.addEventListener('click', clearVideo);
-    uploadZone.addEventListener('dragover', (event) => {
+    input.addEventListener('change', () => selectFile(input.files[0]));
+    byId('changeVideoBtn').addEventListener('click', () => input.click());
+    byId('removeVideoBtn').addEventListener('click', clearFile);
+    zone.addEventListener('dragover', (event) => { event.preventDefault(); zone.classList.add('dragover'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+    zone.addEventListener('drop', (event) => {
         event.preventDefault();
-        uploadZone.classList.add('dragover');
-    });
-    uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
-    uploadZone.addEventListener('drop', (event) => {
-        event.preventDefault();
-        uploadZone.classList.remove('dragover');
+        zone.classList.remove('dragover');
         const file = event.dataTransfer.files[0];
         if (!file) return;
-        try {
-            const transfer = new DataTransfer();
-            transfer.items.add(file);
-            videoInput.files = transfer.files;
-            showPreview(file);
-        } catch (_) {
-            showValidation('Browser tidak dapat menerima file yang ditarik. Silakan klik Pilih Video.');
-        }
+        const transfer = new DataTransfer();
+        transfer.items.add(file);
+        input.files = transfer.files;
+        selectFile(file);
     });
 
-    uploadForm.addEventListener('reset', () => window.setTimeout(clearVideo, 0));
+    form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        if (activeRequest) return;
+        const file = selectedFile || input.files[0];
+        const error = validate(file);
+        if (error) return showError(error);
 
-    previewPlayer.addEventListener('loadedmetadata', () => {
-        if (maxDuration > 0 && Number.isFinite(previewPlayer.duration) && previewPlayer.duration > maxDuration) {
-            clearVideo();
-            showValidation(`Durasi video melebihi batas maksimal ${maxDuration} detik.`);
-        }
-    });
+        clearError();
+        card.classList.add('loading');
+        submit.disabled = true;
+        submit.textContent = 'Sedang Diproses...';
+        beginElapsed();
 
-    const startStagePresentation = () => {
-        if (!analysisSteps.length) return;
-        let activeIndex = 0;
-        const setActiveStep = () => {
-            analysisSteps.forEach((step, index) => step.classList.toggle('active', index === activeIndex));
-            activeIndex = (activeIndex + 1) % analysisSteps.length;
-        };
-        setActiveStep();
-        stageTimer = window.setInterval(setActiveStep, 1800);
-    };
-
-    const resetSubmittingState = () => {
-        isSubmitting = false;
-        uploadCard.classList.remove('loading');
-        if (stageTimer) {
-            window.clearInterval(stageTimer);
-            stageTimer = null;
-        }
-        analysisSteps.forEach((step, index) => step.classList.toggle('active', index === 0));
-        if (!submitBtn.hasAttribute('data-model-unavailable')) {
-            submitBtn.disabled = false;
-        }
-        submitBtn.innerHTML = '<i class="bi bi-shield-check me-1"></i> Mulai Deteksi';
-    };
-
-    uploadForm.addEventListener('submit', (event) => {
-        if (isSubmitting) {
-            event.preventDefault();
-            return;
-        }
-        const error = validateFile(selectedFile || videoInput.files[0]);
-        if (error) {
-            event.preventDefault();
-            showValidation(error);
-            return;
-        }
-        clearValidation();
-        isSubmitting = true;
-        uploadCard.classList.add('loading');
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>Sedang Mengunggah...';
-        startStagePresentation();
-        requestAnimationFrame(() => {
-            previewPlayer.pause();
-            previewPlayer.removeAttribute('src');
-            previewPlayer.load();
-            revokePreviewUrl();
+        const xhr = new XMLHttpRequest();
+        activeRequest = xhr;
+        browserUploadStarted = performance.now();
+        browserUploadSeconds = null;
+        xhr.open('POST', form.action, true);
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        xhr.setRequestHeader('Accept', 'application/json');
+        xhr.upload.addEventListener('progress', (upload) => {
+            if (!upload.lengthComputable) return;
+            const percent = Math.min(100, Math.round((upload.loaded / upload.total) * 100));
+            progress.value = percent;
+            progressLabel.textContent = `Upload ${percent}%`;
+            if (percent === 100) setStage('Mengirim ke Mesin Analisis');
         });
+        xhr.upload.addEventListener('load', () => {
+            browserUploadSeconds = (performance.now() - browserUploadStarted) / 1000;
+            progress.value = 100;
+            progressLabel.textContent = 'Upload selesai';
+            setStage('Video Sedang Dianalisis');
+            startInsights();
+        });
+        xhr.addEventListener('load', () => {
+            let payload = null;
+            try { payload = JSON.parse(xhr.responseText); } catch (_) { /* Ditangani sebagai respons tidak valid. */ }
+            updateCsrf(payload && payload.csrf_hash);
+            console.info('Detection browser timing', {
+                browser_to_frontend_upload_seconds: browserUploadSeconds,
+                total_browser_request_seconds: (performance.now() - browserUploadStarted) / 1000,
+                status: xhr.status
+            });
+            if (xhr.status >= 200 && xhr.status < 300 && payload && payload.success) {
+                setStage('Selesai');
+                reset();
+                showResult(payload.result);
+                return;
+            }
+            const errors = payload && payload.errors ? Object.values(payload.errors).join(' ') : '';
+            reset();
+            showError(errors || (payload && payload.message) || 'Permintaan gagal diproses. Silakan coba kembali.');
+        });
+        xhr.addEventListener('error', () => { reset(); showError('Koneksi ke aplikasi terputus. Silakan coba kembali.'); });
+        xhr.addEventListener('timeout', () => { reset(); showError('Waktu tunggu habis. Silakan coba kembali.'); });
+        xhr.send(new FormData(form));
     });
 
-    if (submitBtn.disabled) submitBtn.setAttribute('data-model-unavailable', 'true');
-    window.addEventListener('pageshow', (event) => {
-        if (event.persisted) resetSubmittingState();
-    });
-    window.addEventListener('beforeunload', revokePreviewUrl);
+    if (submit.disabled) submit.setAttribute('data-model-unavailable', 'true');
+    window.addEventListener('beforeunload', revokePreview);
 });

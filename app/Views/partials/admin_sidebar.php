@@ -1,69 +1,40 @@
-user_sidebar.php<?php
-$current = uri_string();
-
-$active = static function (string $path) use ($current): string {
-    $path = trim($path, '/');
-
-    if ($current === $path) {
-        return 'active';
-    }
-
-    if (str_starts_with($current, $path . '/')) {
-        return 'active';
-    }
-
-    return '';
-};
+<?php
+$currentPath = uri_string();
+$menuItems = [
+    ['url' => 'admin/dashboard', 'label' => 'Dashboard', 'icon' => 'bi-speedometer2', 'active' => $currentPath === 'admin' || $currentPath === 'admin/dashboard'],
+    ['url' => 'admin/users', 'label' => 'Data User', 'icon' => 'bi-people', 'active' => str_starts_with($currentPath, 'admin/users')],
+    ['url' => 'admin/detections/create', 'label' => 'Deteksi Video', 'icon' => 'bi-cloud-arrow-up', 'active' => $currentPath === 'admin/detections/create'],
+    ['url' => 'admin/detections', 'label' => 'Data Deteksi', 'icon' => 'bi-camera-video', 'active' => str_starts_with($currentPath, 'admin/detections') && $currentPath !== 'admin/detections/create'],
+    ['url' => 'admin/api-settings', 'label' => 'Konfigurasi API', 'icon' => 'bi-sliders', 'active' => str_starts_with($currentPath, 'admin/api-settings')],
+    ['url' => 'admin/reports', 'label' => 'Laporan', 'icon' => 'bi-file-earmark-bar-graph', 'active' => str_starts_with($currentPath, 'admin/reports')],
+    ['url' => 'admin/profile', 'label' => 'Profil', 'icon' => 'bi-person-circle', 'active' => str_starts_with($currentPath, 'admin/profile')],
+];
 ?>
-
-<aside class="admin-sidebar" id="adminSidebar">
+<aside class="user-sidebar" id="userSidebar" aria-label="Navigasi administrator" aria-hidden="false">
     <div class="sidebar-brand">
-        <i class="bi bi-shield-check"></i>
-        <div>
-            <div>BAWASLU</div>
-            <small class="fw-normal text-white-50">Deepfake Detection</small>
-        </div>
+        <a href="<?= base_url('admin/dashboard') ?>" class="brand-inner" aria-label="Panel Admin BAWASLU">
+            <span class="brand-logo"><i class="bi bi-shield-lock"></i></span>
+            <span class="brand-copy"><strong>BAWASLU</strong><small>Panel Administrator</small></span>
+        </a>
+        <button type="button" class="sidebar-close" id="sidebarClose" aria-label="Tutup menu navigasi">
+            <i class="bi bi-x-lg"></i>
+        </button>
     </div>
 
-    <div class="py-3">
-        <a href="<?= base_url('admin/dashboard') ?>" class="nav-link <?= $active('admin/dashboard') ?>">
-            <i class="bi bi-speedometer2"></i>
-            <span>Dashboard</span>
-        </a>
+    <nav class="sidebar-menu">
+        <?php foreach ($menuItems as $item) : ?>
+            <a href="<?= base_url($item['url']) ?>"
+               class="sidebar-link <?= $item['active'] ? 'active' : '' ?>"
+               title="<?= esc($item['label'], 'attr') ?>"
+               <?= $item['active'] ? 'aria-current="page"' : '' ?>>
+                <i class="bi <?= esc($item['icon'], 'attr') ?>"></i>
+                <span><?= esc($item['label']) ?></span>
+            </a>
+        <?php endforeach; ?>
+    </nav>
 
-        <a href="<?= base_url('admin/users') ?>" class="nav-link <?= $active('admin/users') ?>">
-            <i class="bi bi-people"></i>
-            <span>Data User</span>
-        </a>
-
-        <a href="<?= base_url('admin/detections') ?>" class="nav-link <?= $active('admin/detections') ?>">
-            <i class="bi bi-camera-video"></i>
-            <span>Data Deteksi Video</span>
-        </a>
-
-        <a href="<?= base_url('admin/api-settings') ?>" class="nav-link <?= $active('admin/api-settings') ?>">
-            <i class="bi bi-hdd-network"></i>
-            <span>Konfigurasi Flask API</span>
-        </a>
-
-        <a href="<?= base_url('admin/reports') ?>" class="nav-link <?= $active('admin/reports') ?>">
-            <i class="bi bi-file-earmark-bar-graph"></i>
-            <span>Laporan</span>
-        </a>
-
-        <a href="<?= base_url('admin/profile') ?>" class="nav-link <?= $active('admin/profile') ?>">
-            <i class="bi bi-person-circle"></i>
-            <span>Profil</span>
-        </a>
-
-        <hr class="border-secondary mx-3">
-
-        <form method="post" action="<?= base_url('logout') ?>">
-            <?= csrf_field() ?>
-        <button type="submit" class="nav-link text-danger border-0 bg-transparent w-100 text-start">
-            <i class="bi bi-box-arrow-right"></i>
-            <span>Logout</span>
-        </button>
-        </form>
+    <div class="sidebar-footer">
+        <span class="sidebar-footer-icon"><i class="bi bi-shield-check"></i></span>
+        <span>Kelola sistem dan tinjau hasil deteksi secara bertanggung jawab.</span>
     </div>
 </aside>

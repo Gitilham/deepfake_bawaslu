@@ -45,9 +45,13 @@ $routes->group('admin', ['namespace' => 'App\Controllers\Admin', 'filter' => ['a
 
     $routes->get('users', 'UserController::index');
     $routes->get('users/detail/(:num)', 'UserController::detail/$1');
+    $routes->get('users/edit/(:num)', 'UserController::edit/$1');
+    $routes->post('users/update/(:num)', 'UserController::update/$1');
     $routes->post('users/toggle/(:num)', 'UserController::toggleStatus/$1');
 
     $routes->get('detections', 'DetectionController::index');
+    $routes->get('detections/create', 'DetectionController::create');
+    $routes->post('detections/store', 'DetectionController::store');
     $routes->get('detections/detail/(:num)', 'DetectionController::detail/$1');
     $routes->post('detections/review/(:num)', 'DetectionController::markReviewed/$1');
 

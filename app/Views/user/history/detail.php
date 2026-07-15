@@ -1,4 +1,4 @@
-<?= $this->extend('layouts/user') ?>
+<?= $this->extend($layout ?? 'layouts/user') ?>
 
 <?= $this->section('styles') ?>
 <?php
@@ -18,7 +18,9 @@ $isFailed = $status === 'failed';
 $isProcessing = in_array($status, ['pending', 'processing'], true);
 $resultType = $isFailed ? 'failed' : ($isProcessing ? 'processing' : match ($label) {
     'REAL' => 'real',
+    'MENCURIGAKAN' => 'uncertain',
     'DEEPFAKE' => 'deepfake',
+    'NO_FACE' => 'uncertain',
     default => 'uncertain',
 });
 
@@ -98,11 +100,15 @@ $formatDate = static function ($value): string {
 
 $realPercent = $percentValue($detection['real_score'] ?? null);
 $fakePercent = $percentValue($detection['fake_score'] ?? null);
+$otherDetectionUrl = $otherDetectionUrl ?? base_url('user/detections/create');
+$backUrl = $backUrl ?? base_url('user/history');
+$backLabel = $backLabel ?? 'Kembali ke Riwayat';
+$reviewUrl = $reviewUrl ?? null;
 $showResultAlert = (bool) session()->getFlashdata('show_result_alert');
 $alertConfig = [
     'show' => $showResultAlert,
     'type' => $resultType,
-    'otherUrl' => base_url('user/detections/create'),
+    'otherUrl' => $otherDetectionUrl,
 ];
 ?>
 
@@ -113,12 +119,20 @@ $alertConfig = [
         <p>Ringkasan utama ditampilkan lebih dulu, sementara data teknis dapat dibuka bila diperlukan.</p>
     </div>
     <div class="detail-actions">
-        <a href="<?= base_url('user/detections/create') ?>" class="btn btn-danger">
+        <a href="<?= esc($otherDetectionUrl) ?>" class="btn btn-danger">
             <i class="bi bi-plus-circle me-1"></i> Deteksi Video Lain
         </a>
-        <a href="<?= base_url('user/history') ?>" class="btn btn-outline-secondary">
-            <i class="bi bi-clock-history me-1"></i> Kembali ke Riwayat
+        <a href="<?= esc($backUrl) ?>" class="btn btn-outline-secondary">
+            <i class="bi bi-clock-history me-1"></i> <?= esc($backLabel) ?>
         </a>
+        <?php if ($reviewUrl && ($detection['status'] ?? '') === 'completed' && ($detection['review_status'] ?? '') !== 'reviewed') : ?>
+            <form method="post" action="<?= esc($reviewUrl) ?>" class="d-inline">
+                <?= csrf_field() ?>
+                <button type="submit" class="btn btn-outline-success" onclick="return confirm('Tandai hasil ini sudah direview?')">
+                    <i class="bi bi-check2-square me-1"></i> Tandai Reviewed
+                </button>
+            </form>
+        <?php endif; ?>
     </div>
 </div>
 

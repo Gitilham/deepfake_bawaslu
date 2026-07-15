@@ -934,7 +934,7 @@
                     <p>
                         Solusi teknologi canggih untuk memverifikasi keaslian video dan
                         menjaga integritas pemantauan pemilu dari ancaman manipulasi digital.
-                        Sistem ini terhubung dengan model AI melalui Flask API.
+                        Sistem ini terhubung dengan model AI melalui Backend API.
                     </p>
 
                     <div class="lp-hero-actions">
@@ -973,7 +973,7 @@
                             </div>
 
                             <div class="small text-muted">
-                                Upload video, sistem mengirim file ke Flask API,
+                                Upload video, sistem mengirim file ke Backend API,
                                 lalu menampilkan hasil klasifikasi.
                             </div>
 
@@ -1010,7 +1010,7 @@
                 <h2>Fitur Sistem</h2>
                 <p>
                     Sistem dirancang untuk mendukung proses deteksi video deepfake
-                    melalui kombinasi YOLOv8, CNN/Xception, fitur artefak, dan Flask API.
+                    melalui kombinasi YOLOv8, CNN/Xception, fitur artefak, dan Backend FastAPI.
                 </p>
             </div>
 
@@ -1110,7 +1110,7 @@
                         Website ini dibuat sebagai media pendukung penelitian skripsi
                         mengenai deteksi dan klasifikasi deepfake pada video.
                         CodeIgniter 4 digunakan sebagai website utama, MySQL sebagai database,
-                        dan Flask API sebagai penghubung ke model AI.
+                        dan Backend API sebagai penghubung ke model AI.
                     </p>
                     <p>
                         Tema Bawaslu digunakan karena penelitian berkaitan dengan pengawasan
@@ -1131,7 +1131,7 @@
 
                     <div class="lp-check">
                         <i class="bi bi-check-circle-fill"></i>
-                        <div>Integrasi website CodeIgniter 4 dengan Flask API.</div>
+                        <div>Integrasi website CodeIgniter 4 dengan Backend API.</div>
                     </div>
 
                     <div class="lp-check">

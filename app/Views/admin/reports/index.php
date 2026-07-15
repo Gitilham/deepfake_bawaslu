@@ -960,7 +960,7 @@ $formatPercent = static function ($value): string {
 </div>
 
 <?php if (isset($pager)) : ?>
-    <div class="mt-3"><?= $pager->only(['start_date', 'end_date', 'predicted_label', 'status'])->links('reports', 'default_full') ?></div>
+    <div class="mt-3"><?= $pager->only(['start_date', 'end_date', 'predicted_label', 'status'])->links('reports', 'admin_full') ?></div>
 <?php endif; ?>
 
 <?= $this->endSection() ?>
