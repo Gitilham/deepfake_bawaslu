@@ -16,8 +16,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const messages = {
         real: {
             icon: 'success',
-            title: 'Video Cenderung Asli',
-            text: 'Berdasarkan hasil analisis sistem, video ini tidak menunjukkan indikasi kuat manipulasi deepfake.',
+            title: 'Video Anda Terdeteksi Real',
+            text: 'Sistem mendeteksi video ini sebagai video real.',
             note: 'Hasil ini merupakan prediksi sistem dan bukan jaminan mutlak keaslian video.',
             confirm: 'Lihat Hasil Lengkap',
             cancel: 'Deteksi Video Lain',
@@ -25,8 +25,8 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         deepfake: {
             icon: 'warning',
-            title: 'Video Terdeteksi Deepfake',
-            text: 'Sistem menemukan indikasi manipulasi deepfake pada video yang Anda unggah.',
+            title: 'Video Anda Terdeteksi Deepfake',
+            text: 'Sistem mendeteksi video ini sebagai video deepfake.',
             note: 'Periksa kembali sumber video dan lakukan verifikasi tambahan sebelum mempercayai atau menyebarkannya.',
             confirm: 'Lihat Hasil Lengkap',
             cancel: 'Periksa Video Lain',

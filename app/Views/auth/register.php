@@ -409,31 +409,88 @@
     }
 
     @media (max-width: 575px) {
+        html,
+        body {
+            height: 100%;
+            overflow: hidden;
+            background: #fff;
+        }
+
         .register-page {
-            padding: 14px;
+            width: 100%;
+            min-height: 100vh;
+            min-height: 100dvh;
+            padding: 0;
+            overflow: hidden;
+            background: #fff;
         }
 
         .register-wrapper {
-            border-radius: 20px;
+            width: 100%;
+            height: 100vh;
+            height: 100dvh;
+            min-height: 0;
+            max-width: none;
+            display: block;
+            overflow: hidden;
+            border-radius: 0;
+            box-shadow: none;
         }
 
-        .register-left,
+        .register-left {
+            display: none;
+        }
+
         .register-right {
-            padding: 28px 18px;
+            width: 100%;
+            height: 100%;
+            padding: 14px 22px;
+            overflow: hidden;
+        }
+
+        .register-form-wrap {
+            max-width: 420px;
         }
 
         .register-title h2 {
-            font-size: 28px;
+            font-size: 25px;
         }
 
         .register-links {
-            flex-direction: column;
+            justify-content: center;
+            margin-top: 12px;
             text-align: center;
         }
 
-        .register-logo img {
-            height: 64px;
+        .register-links a:first-child {
+            display: none;
         }
+
+        .register-logo img {
+            height: 38px;
+        }
+
+        .register-logo { margin-bottom: 5px; }
+        .register-title { margin-bottom: 12px; }
+        .register-title h2 { margin-bottom: 2px; }
+        .register-title p { font-size: 12px; }
+        .register-alert { margin-bottom: 8px; padding: 8px 10px; font-size: 12px; }
+        .floating-group { margin-bottom: 10px; }
+        .floating-group input { height: 50px; padding-top: 20px; }
+        .floating-group label { top: 14px; }
+        .register-submit { height: 50px; margin-top: 2px; }
+    }
+
+    @media (max-width: 575px) and (max-height: 650px) {
+        .register-right { padding-top: 8px; padding-bottom: 8px; }
+        .register-logo { display: none; }
+        .register-title { margin-bottom: 8px; }
+        .register-title p { display: none; }
+        .floating-group { margin-bottom: 8px; }
+        .floating-group input { height: 46px; }
+        .floating-group label { top: 12px; }
+        .register-submit { height: 46px; }
+        .register-links { margin-top: 8px; }
     }
 </style>
 

@@ -26,15 +26,15 @@ $resultType = $isFailed ? 'failed' : ($isProcessing ? 'processing' : match ($lab
 
 $resultContent = match ($resultType) {
     'real' => [
-        'title' => 'Video Cenderung Asli',
-        'description' => 'Analisis sistem menunjukkan bahwa video ini lebih cenderung merupakan video asli.',
-        'meaning' => 'Video lebih cenderung asli berdasarkan pola visual yang dianalisis oleh sistem. Namun, hasil otomatis tetap perlu dipertimbangkan bersama sumber dan konteks video.',
-        'badge' => 'Cenderung Asli',
+        'title' => 'Video Anda Terdeteksi Real',
+        'description' => 'Sistem mendeteksi video ini sebagai video real.',
+        'meaning' => 'Pola visual yang dianalisis sistem diklasifikasikan sebagai video real. Hasil otomatis tetap perlu dipertimbangkan bersama sumber dan konteks video.',
+        'badge' => 'Terdeteksi Real',
         'icon' => 'bi-check-circle-fill',
     ],
     'deepfake' => [
-        'title' => 'Video Terdeteksi Deepfake',
-        'description' => 'Analisis sistem menemukan indikasi manipulasi deepfake pada video ini.',
+        'title' => 'Video Anda Terdeteksi Deepfake',
+        'description' => 'Sistem mendeteksi video ini sebagai video deepfake.',
         'meaning' => 'Video menunjukkan pola yang menyerupai hasil manipulasi deepfake. Hindari langsung mempercayai atau menyebarkan video sebelum melakukan verifikasi tambahan.',
         'badge' => 'Terdeteksi Deepfake',
         'icon' => 'bi-exclamation-triangle-fill',

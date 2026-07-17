@@ -731,6 +731,11 @@
 }
 
 @media (max-width: 575px) {
+    body.detection-loading {
+        overflow: hidden;
+        overscroll-behavior: none;
+    }
+
     .upload-header {
         flex-direction: column;
     }
@@ -783,30 +788,47 @@
     }
 
     .card-loading {
-        padding: 14px;
+        position: fixed;
+        inset: 0;
+        z-index: 2000;
+        height: 100vh;
+        height: 100dvh;
+        padding: 16px;
+        background: rgba(15, 23, 42, .58);
     }
 
     .loading-box {
-        max-height: calc(100vh - 28px);
-        overflow-y: auto;
-        padding: 20px 16px;
+        width: min(100%, 390px);
+        max-height: calc(100dvh - 32px);
+        overflow: hidden;
+        border-radius: 22px;
+        padding: 18px 16px 20px;
     }
 
     .loading-visual {
-        width: 220px;
-        height: 180px;
-        margin-top: -6px;
+        width: 170px;
+        height: 130px;
+        margin: -8px auto 0;
     }
 
     .loading-animation {
-        width: 220px;
-        height: 180px;
+        width: 170px;
+        height: 130px;
     }
 
     .loading-animation lottie-player {
-        width: 220px;
-        height: 180px;
-        transform: scale(1.8);
+        width: 170px;
+        height: 130px;
+        transform: scale(1.7);
+    }
+
+    .loading-kicker { margin-bottom: 7px; }
+    .loading-box h5 { margin-bottom: 4px; font-size: 1.2rem; }
+    .upload-progress-wrap { margin-top: 12px; }
+
+    .loading-box .analysis-insight,
+    .loading-box .loading-note {
+        display: none !important;
     }
 
     .analysis-steps li {

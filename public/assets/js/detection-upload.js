@@ -125,6 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const reset = () => {
         activeRequest = null;
         card.classList.remove('loading');
+        document.body.classList.remove('detection-loading');
         if (elapsedTimer) window.clearInterval(elapsedTimer);
         stopInsights();
         elapsedTimer = null;
@@ -143,8 +144,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const showResult = (result) => {
         const label = String(result.label || 'UNKNOWN').toUpperCase();
         const views = {
-            REAL: ['success', 'Video Anda Cenderung Asli', 'Sistem lebih condong menilai video ini sebagai video asli.', '#059669'],
-            DEEPFAKE: ['warning', 'Video Anda Cenderung Deepfake', 'Sistem menemukan kecenderungan manipulasi deepfake pada video ini.', '#dc2626'],
+            REAL: ['success', 'Video Anda Terdeteksi Real', 'Sistem mendeteksi video ini sebagai video real.', '#059669'],
+            DEEPFAKE: ['warning', 'Video Anda Terdeteksi Deepfake', 'Sistem mendeteksi video ini sebagai video deepfake.', '#dc2626'],
             MENCURIGAKAN: ['question', 'Hasil Video Mencurigakan', 'Backend menetapkan hasil pada batas keputusan dan perlu pemeriksaan lebih lanjut.', '#d97706'],
             NO_FACE: ['info', 'Wajah Tidak Terdeteksi', 'Sistem belum dapat menilai video karena wajah tidak cukup terdeteksi.', '#2563eb']
         };
@@ -184,6 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         clearError();
         card.classList.add('loading');
+        document.body.classList.add('detection-loading');
         submit.disabled = true;
         submit.textContent = 'Sedang Diproses...';
         beginElapsed();

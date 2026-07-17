@@ -238,7 +238,7 @@ $detectionResult = session()->getFlashdata('detection_result');
             </div>
         </form>
 
-        <div class="card-loading" id="cardLoading">
+        <div class="card-loading" id="cardLoading" role="dialog" aria-modal="true" aria-labelledby="analysisTitle">
             <div class="loading-box">
                 <div class="loading-visual" aria-hidden="true">
                     <div class="loading-animation">
@@ -304,15 +304,15 @@ window.addEventListener('DOMContentLoaded', function () {
     const presentations = {
         REAL: {
             icon: 'success',
-            title: 'Video Anda Cenderung Asli',
+            title: 'Video Anda Terdeteksi Real',
             color: '#059669',
-            description: 'Sistem lebih condong menilai video ini sebagai video asli.'
+            description: 'Sistem mendeteksi video ini sebagai video real.'
         },
         DEEPFAKE: {
             icon: 'warning',
-            title: 'Video Anda Cenderung Deepfake',
+            title: 'Video Anda Terdeteksi Deepfake',
             color: '#dc2626',
-            description: 'Sistem menemukan kecenderungan manipulasi deepfake pada video ini.'
+            description: 'Sistem mendeteksi video ini sebagai video deepfake.'
         },
         MENCURIGAKAN: {
             icon: 'question',

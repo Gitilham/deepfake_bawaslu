@@ -410,17 +410,47 @@
     }
 
     @media (max-width: 575px) {
+        html,
+        body {
+            height: 100%;
+            overflow: hidden;
+            background: #fff;
+        }
+
         .login-page {
-            padding: 14px;
+            width: 100%;
+            min-height: 100vh;
+            min-height: 100dvh;
+            padding: 0;
+            overflow: hidden;
+            background: #fff;
         }
 
         .login-wrapper {
-            border-radius: 20px;
+            width: 100%;
+            height: 100vh;
+            height: 100dvh;
+            min-height: 0;
+            max-width: none;
+            display: block;
+            overflow: hidden;
+            border-radius: 0;
+            box-shadow: none;
         }
 
-        .login-left,
+        .login-left {
+            display: none;
+        }
+
         .login-right {
-            padding: 28px 18px;
+            width: 100%;
+            height: 100%;
+            padding: 20px 22px;
+            overflow: hidden;
+        }
+
+        .login-form-wrap {
+            max-width: 420px;
         }
 
         .login-title h2 {
@@ -428,13 +458,19 @@
         }
 
         .login-links {
-            flex-direction: column;
+            margin-top: 18px;
             text-align: center;
         }
 
         .login-logo img {
-            height: 64px;
+            height: 52px;
         }
+
+        .login-logo { margin-bottom: 14px; }
+        .login-title { margin-bottom: 22px; }
+        .floating-group { margin-bottom: 16px; }
+        .floating-group input { height: 56px; }
+        .login-submit { height: 54px; }
     }
 </style>
 
